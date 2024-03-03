@@ -1,5 +1,3 @@
-/target
-/debug
 /cmake-build-*/
 /.idea/
 /.vscode/
@@ -11,4 +9,3 @@ CMakeCache.txt
 CTestTestfile.cmake
 /build/
 /lib/
-
