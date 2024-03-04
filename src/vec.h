@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <optional>
+#include <algorithm>
 template <class T>
 class Vec {
 private:
@@ -20,6 +21,8 @@ public:
     std::optional<T*> get_mut(uint32_t index);
     void push(T value);
 
+    Vec<T> map(std::function<T(T)> f);
+    Vec<T>* map_mut(std::function<void(T*)> f);
 
     [[nodiscard]] uint32_t len() const {
         return length;
@@ -64,6 +67,22 @@ void Vec<T>::push(T value) {
     ptr.get()[length++] = value;
 }
 
+template <class T>
+Vec<T> Vec<T>::map(std::function<T(T)> f) {
+    Vec<T> new_vec;
+    for (uint32_t i = 0; i < length; i++) {
+        new_vec.push(f(this->get(i).value()));
+    }
+    return new_vec;
+}
+
+template <class T>
+Vec<T>* Vec<T>::map_mut(std::function<void(T*)> f) {
+    for (uint32_t i = 0; i < length; i++) {
+        f(this->get_mut(i).value());
+    }
+    return this;
+}
 
 
 
