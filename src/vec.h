@@ -7,85 +7,85 @@
 #include <memory>
 #include <optional>
 #include <algorithm>
-template <class T>
-class Vec {
-private:
-    std::unique_ptr<T[]> ptr;
-    uint32_t length;
-    uint32_t cap;
-    static constexpr uint32_t INITIAL_SIZE = 16;
-public:
-    Vec();
-    void from_slice(T* slice, uint32_t len);
-    std::optional<T> get(uint32_t index);
-    std::optional<T*> get_mut(uint32_t index);
-    void push(T value);
+namespace dsun {
+    template <class T>
+    class Vec {
+    private:
+        std::unique_ptr<T[]> ptr;
+        uint32_t length;
+        uint32_t cap;
+        static constexpr uint32_t INITIAL_SIZE = 16;
+    public:
+        Vec();
+        void from_slice(T* slice, uint32_t len);
+        std::optional<T> get(uint32_t index);
+        std::optional<T*> get_mut(uint32_t index);
+        void push(T value);
 
-    Vec<T> map(std::function<T(T)> f);
-    Vec<T>* map_mut(std::function<void(T*)> f);
+        Vec<T> map(std::function<T(T)> f);
+        Vec<T>* map_mut(std::function<void(T*)> f);
 
-    [[nodiscard]] uint32_t len() const {
-        return length;
+        [[nodiscard]] uint32_t len() const {
+            return length;
+        }
+        [[nodiscard]] uint32_t capacity() const {
+            return cap;
+        }
+    };
+
+    template <class T>
+    Vec<T>::Vec() : length(0), cap(INITIAL_SIZE) {
+        static_assert(std::size_t{ sizeof(T) } > 0, "T must be complete type");
+        ptr = std::make_unique<T[]>(cap);
     }
-    [[nodiscard]] uint32_t capacity() const {
-        return cap;
+
+    template <class T>
+    void Vec<T>::from_slice(T* slice, uint32_t len) {
+        length = len;
+        cap = len * 2;
+        ptr = std::make_unique<T[]>(cap);
+        std::copy(slice, slice + length, ptr.get());
     }
-};
 
-template <class T>
-Vec<T>::Vec() : length(0), cap(INITIAL_SIZE) {
-    static_assert(std::size_t{ sizeof(T) } > 0, "T must be complete type");
-    ptr = std::make_unique<T[]>(cap);
-}
-
-template <class T>
-void Vec<T>::from_slice(T* slice, uint32_t len) {
-    length = len;
-    cap = len * 2;
-    ptr = std::make_unique<T[]>(cap);
-    std::copy(slice, slice + length, ptr.get());
-}
-
-template <class T>
-std::optional<T> Vec<T>::get(uint32_t index) {
-    return this->ptr.get()[index] ? std::optional<T>(this->ptr.get()[index]) : std::nullopt;
-}
-
-template <class T>
-std::optional<T*> Vec<T>::get_mut(uint32_t index) {
-    return this->ptr.get()[index] ? std::optional<T*>(&this->ptr.get()[index]) : std::nullopt;
-}
-
-template <class T>
-void Vec<T>::push(T value) {
-    if (length == cap) {
-        cap *= 2;
-        auto new_ptr = std::make_unique<T[]>(cap);
-        std::copy(ptr.get(), ptr.get() + length, new_ptr.get());
-        ptr = std::move(new_ptr);
+    template <class T>
+    std::optional<T> Vec<T>::get(uint32_t index) {
+        return this->ptr.get()[index] ? std::optional<T>(this->ptr.get()[index]) : std::nullopt;
     }
-    ptr.get()[length++] = value;
-}
 
-template <class T>
-Vec<T> Vec<T>::map(std::function<T(T)> f) {
-    Vec<T> new_vec;
-    for (uint32_t i = 0; i < length; i++) {
-        new_vec.push(f(this->get(i).value()));
+    template <class T>
+    std::optional<T*> Vec<T>::get_mut(uint32_t index) {
+        return this->ptr.get()[index] ? std::optional<T*>(&this->ptr.get()[index]) : std::nullopt;
     }
-    return new_vec;
-}
 
-template <class T>
-Vec<T>* Vec<T>::map_mut(std::function<void(T*)> f) {
-    for (uint32_t i = 0; i < length; i++) {
-        f(this->get_mut(i).value());
+    template <class T>
+    void Vec<T>::push(T value) {
+        if (length == cap) {
+            cap *= 2;
+            auto new_ptr = std::make_unique<T[]>(cap);
+            std::copy(ptr.get(), ptr.get() + length, new_ptr.get());
+            ptr = std::move(new_ptr);
+        }
+        ptr.get()[length++] = value;
     }
-    return this;
+
+    template <class T>
+    Vec<T> Vec<T>::map(std::function<T(T)> f) {
+        Vec<T> new_vec;
+        for (uint32_t i = 0; i < length; i++) {
+            new_vec.push(f(this->get(i).value()));
+        }
+        return new_vec;
+    }
+
+    template <class T>
+    Vec<T>* Vec<T>::map_mut(std::function<void(T*)> f) {
+        for (uint32_t i = 0; i < length; i++) {
+            f(this->get_mut(i).value());
+        }
+        return this;
+    }
+
 }
-
-
-
 
 #endif //DSUN_VEC_H
 
