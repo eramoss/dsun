@@ -32,6 +32,21 @@ namespace dsun {
         std::optional<T> remove(uint32_t index);
         void push(T value);
 
+        /*
+          Getters
+        */
+        std::optional<T>  pop() {
+            return this->get(--length).value();
+        }
+        std::optional<T>  last() {
+            return this->get(length - 1).value();
+        }
+        std::optional<T> first() {
+            return this->get(0);
+        }
+        std::optional<T> operator[](uint32_t index) {
+            return this->get(index);
+        }
         [[nodiscard]] uint32_t len() const {
             return length;
         }

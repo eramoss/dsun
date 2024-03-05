@@ -52,6 +52,15 @@ TEST_F(VecTest, GetMutVec) {
   EXPECT_EQ(vec.get(0).value(), 10);
 }
 
+TEST_F(VecTest, RemoveVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+  vec.remove(2);
+
+  EXPECT_EQ(vec.get(2).value(), 4);
+  EXPECT_EQ(vec.len(), 4);
+}
+
 TEST_F(VecTest, PushVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
   auto vec = dsun::Vec<int>::from_slice(arr);
@@ -59,6 +68,43 @@ TEST_F(VecTest, PushVec) {
 
   EXPECT_EQ(vec.get(5).value(), 6);
 }
+
+TEST_F(VecTest, PopVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+  vec.pop();
+
+  EXPECT_EQ(vec.len(), 4);
+  EXPECT_EQ(vec.get(3).value(), 4);
+}
+
+TEST_F(VecTest, LastVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+  auto last = vec.last();
+
+  EXPECT_EQ(last.value(), 5);
+}
+
+TEST_F(VecTest, FirstVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+  auto first = vec.first();
+
+  EXPECT_EQ(first.value(), 1);
+}
+
+TEST_F(VecTest, IndexVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+
+  EXPECT_EQ(vec[0].value(), 1);
+  EXPECT_EQ(vec[1].value(), 2);
+  EXPECT_EQ(vec[2].value(), 3);
+  EXPECT_EQ(vec[3].value(), 4);
+  EXPECT_EQ(vec[4].value(), 5);
+}
+
 
 TEST_F(VecTest, MapVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
@@ -85,14 +131,7 @@ TEST_F(VecTest, MapMutVec) {
   EXPECT_EQ(vec.get(0).value(), 2);
 }
 
-TEST_F(VecTest, RemoveVec) {
-  int arr[5] = { 1, 2, 3, 4, 5 };
-  auto vec = dsun::Vec<int>::from_slice(arr);
-  vec.remove(2);
 
-  EXPECT_EQ(vec.get(2).value(), 4);
-  EXPECT_EQ(vec.len(), 4);
-}
 
 
 int main(int argc, char** argv) {
