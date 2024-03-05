@@ -17,7 +17,9 @@ namespace dsun {
         static constexpr uint32_t INITIAL_SIZE = 16;
     public:
         Vec();
-        void from_slice(T* slice, uint32_t len);
+        static Vec<T> from_slice(T* slice);
+        static Vec<T> with_capacity(uint32_t capacity);
+
         std::optional<T> get(uint32_t index);
         std::optional<T*> get_mut(uint32_t index);
         void push(T value);
@@ -40,11 +42,23 @@ namespace dsun {
     }
 
     template <class T>
-    void Vec<T>::from_slice(T* slice, uint32_t len) {
-        length = len;
-        cap = len * 2;
-        ptr = std::make_unique<T[]>(cap);
-        std::copy(slice, slice + length, ptr.get());
+    Vec<T> Vec<T>::from_slice(T* slice) {
+        size_t len = 0;
+        while (slice[len] != T{}) {
+            len++;
+        }
+        auto vec = Vec<T>::with_capacity(len * 2);
+        std::copy(slice, slice + len, vec.ptr.get());
+        vec.length = len;
+        return vec;
+    }
+
+    template <class T>
+    Vec<T> Vec<T>::with_capacity(uint32_t capacity) {
+        Vec<T> vec;
+        vec.cap = capacity;
+        vec.ptr = std::make_unique<T[]>(capacity);
+        return vec;
     }
 
     template <class T>

@@ -11,24 +11,32 @@ TEST_F(VecTest, ConstructorTest) {
   EXPECT_EQ(vec.capacity(), 16); //  INITIAL_SIZE
 }
 
-TEST_F(VecTest, FromSliceTest) {
-  int arr[5] = { 1, 2, 3, 4, 5 };
-  vec.from_slice(arr, 5);
-
+TEST_F(VecTest, TestFromSlice) {
+  int arr[] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
   EXPECT_EQ(vec.len(), 5);
+
+  for (size_t i = 0; i < vec.len(); ++i) {
+    EXPECT_EQ(vec.get(i).value(), arr[i]);
+  }
+}
+
+TEST_F(VecTest, TestWithCapacity) {
+  auto vec = dsun::Vec<int>::with_capacity(10);
+
   EXPECT_EQ(vec.capacity(), 10);
 }
 
 TEST_F(VecTest, GetVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
-  vec.from_slice(arr, 5);
+  auto vec = dsun::Vec<int>::from_slice(arr);
 
   EXPECT_EQ(vec.get(0).value(), 1);
 }
 
 TEST_F(VecTest, GetMutVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
-  vec.from_slice(arr, 5);
+  auto vec = dsun::Vec<int>::from_slice(arr);
 
   int* ptr = vec.get_mut(0).value();
   *ptr = 10;
@@ -37,7 +45,7 @@ TEST_F(VecTest, GetMutVec) {
 
 TEST_F(VecTest, PushVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
-  vec.from_slice(arr, 5);
+  auto vec = dsun::Vec<int>::from_slice(arr);
   vec.push(6);
 
   EXPECT_EQ(vec.get(5).value(), 6);
@@ -45,7 +53,7 @@ TEST_F(VecTest, PushVec) {
 
 TEST_F(VecTest, MapVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
-  vec.from_slice(arr, 5);
+  auto vec = dsun::Vec<int>::from_slice(arr);
   auto new_vec = vec.map([](int x) { return x + 1; });
 
   EXPECT_EQ(new_vec.get(4).value(), 6);
@@ -58,7 +66,7 @@ TEST_F(VecTest, MapVec) {
 
 TEST_F(VecTest, MapMutVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
-  vec.from_slice(arr, 5);
+  auto vec = dsun::Vec<int>::from_slice(arr);
   vec.map_mut([](int* x) {  *x = *x + 1; });
 
   EXPECT_EQ(vec.get(4).value(), 6);
