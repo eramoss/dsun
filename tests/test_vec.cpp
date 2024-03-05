@@ -85,6 +85,15 @@ TEST_F(VecTest, MapMutVec) {
   EXPECT_EQ(vec.get(0).value(), 2);
 }
 
+TEST_F(VecTest, RemoveVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+  vec.remove(2);
+
+  EXPECT_EQ(vec.get(2).value(), 4);
+  EXPECT_EQ(vec.len(), 4);
+}
+
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

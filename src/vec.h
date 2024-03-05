@@ -29,7 +29,9 @@ namespace dsun {
         */
         std::optional<T> get(uint32_t index);
         std::optional<T*> get_mut(uint32_t index);
+        std::optional<T> remove(uint32_t index);
         void push(T value);
+
         [[nodiscard]] uint32_t len() const {
             return length;
         }
@@ -86,6 +88,17 @@ namespace dsun {
     template <class T>
     std::optional<T*> Vec<T>::get_mut(uint32_t index) {
         return this->ptr.get()[index] ? std::optional<T*>(&this->ptr.get()[index]) : std::nullopt;
+    }
+
+    template <class T>
+    std::optional<T> Vec<T>::remove(uint32_t index) {
+        if (index >= length) {
+            return std::nullopt;
+        }
+        T value = ptr.get()[index];
+        std::copy(ptr.get() + index + 1, ptr.get() + length, ptr.get() + index);
+        length--;
+        return std::optional<T>(value);
     }
 
     template <class T>
