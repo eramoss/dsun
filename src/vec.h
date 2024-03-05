@@ -59,6 +59,7 @@ namespace dsun {
         */
         Vec<T> map(std::function<T(T)> f);
         Vec<T>* map_mut(std::function<void(T*)> f);
+        Vec<T> filter(std::function<bool(T)> f);
     };
 
     template <class T>
@@ -142,6 +143,17 @@ namespace dsun {
             f(this->get_mut(i).value());
         }
         return this;
+    }
+
+    template <class T>
+    Vec<T> Vec<T>::filter(std::function<bool(T)> f) {
+        Vec<T> new_vec;
+        for (uint32_t i = 0; i < length; i++) {
+            if (f(this->get(i).value())) {
+                new_vec.push(this->get(i).value());
+            }
+        }
+        return new_vec;
     }
 
 }

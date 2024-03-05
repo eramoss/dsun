@@ -131,6 +131,14 @@ TEST_F(VecTest, MapMutVec) {
   EXPECT_EQ(vec.get(0).value(), 2);
 }
 
+TEST_F(VecTest, FilterVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+  auto new_vec = vec.filter([](int x) { return x % 2 == 0; });
+
+  EXPECT_EQ(new_vec.get(0).value(), 2);
+  EXPECT_EQ(new_vec.get(1).value(), 4);
+}
 
 
 
