@@ -16,23 +16,31 @@ namespace dsun {
         uint32_t cap;
         static constexpr uint32_t INITIAL_SIZE = 16;
     public:
+        /*
+          Constructors
+        */
         Vec();
         static Vec<T> from_slice(T* slice);
         static Vec<T> with_capacity(uint32_t capacity);
 
+        /*
+          Primary methods
+        */
         std::optional<T> get(uint32_t index);
         std::optional<T*> get_mut(uint32_t index);
         void push(T value);
-
-        Vec<T> map(std::function<T(T)> f);
-        Vec<T>* map_mut(std::function<void(T*)> f);
-
         [[nodiscard]] uint32_t len() const {
             return length;
         }
         [[nodiscard]] uint32_t capacity() const {
             return cap;
         }
+
+        /*
+          Higher order functions
+        */
+        Vec<T> map(std::function<T(T)> f);
+        Vec<T>* map_mut(std::function<void(T*)> f);
     };
 
     template <class T>
