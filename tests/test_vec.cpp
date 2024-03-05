@@ -21,6 +21,15 @@ TEST_F(VecTest, TestFromSlice) {
   }
 }
 
+TEST_F(VecTest, TestFromList) {
+  auto vec = dsun::Vec<int>::from_list({ 1, 2, 3, 4, 5 });
+  EXPECT_EQ(vec.len(), 5);
+
+  for (size_t i = 0; i < vec.len(); ++i) {
+    EXPECT_EQ(vec.get(i).value(), i + 1);
+  }
+}
+
 TEST_F(VecTest, TestWithCapacity) {
   auto vec = dsun::Vec<int>::with_capacity(10);
 

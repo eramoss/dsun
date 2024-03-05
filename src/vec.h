@@ -21,6 +21,7 @@ namespace dsun {
         */
         Vec();
         static Vec<T> from_slice(T* slice);
+        static Vec<T> from_list(std::initializer_list<T> list);
         static Vec<T> with_capacity(uint32_t capacity);
 
         /*
@@ -58,6 +59,14 @@ namespace dsun {
         auto vec = Vec<T>::with_capacity(len * 2);
         std::copy(slice, slice + len, vec.ptr.get());
         vec.length = len;
+        return vec;
+    }
+
+    template <class T>
+    Vec<T> Vec<T>::from_list(std::initializer_list<T> list) {
+        auto vec = Vec<T>::with_capacity(list.size() * 2);
+        std::copy(list.begin(), list.end(), vec.ptr.get());
+        vec.length = list.size();
         return vec;
     }
 
