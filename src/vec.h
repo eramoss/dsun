@@ -22,7 +22,6 @@ namespace dsun {
           Constructors
         */
         Vec();
-
         template<std::size_t N>
         static Vec<T> from_slice(const T(&arr)[N]) {
             auto vec = Vec<T>::with_capacity(N);
@@ -37,7 +36,7 @@ namespace dsun {
         /*
           Primary methods
         */
-        std::optional<T> get(uint32_t index);
+        std::optional<T> get(uint32_t index) const;
         std::optional<T*> get_mut(uint32_t index);
         std::optional<T> remove(uint32_t index);
         void push(T value);
@@ -48,14 +47,33 @@ namespace dsun {
         std::optional<T>  pop() {
             return this->get(--length).value();
         }
-        std::optional<T>  last() {
+        std::optional<T>  last() const {
             return this->get(length - 1).value();
         }
-        std::optional<T> first() {
+        std::optional<T> first() const {
             return this->get(0);
         }
-        std::optional<T> operator[](uint32_t index) {
+        std::optional<T> operator[](uint32_t index) const {
             return this->get(index);
+        }
+        bool contains(T value) {
+            for (uint32_t i = 0; i < length; i++) {
+                if (this->get(i).value() == value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        bool is_empty() {
+            return length == 0;
+        }
+        std::optional<uint32_t> index_of(T value) {
+            for (uint32_t i = 0; i < length; i++) {
+                if (this->get(i).value() == value) {
+                    return std::optional<uint32_t>(i);
+                }
+            }
+            return std::nullopt;
         }
         [[nodiscard]] uint32_t len() const {
             return length;
@@ -95,7 +113,7 @@ namespace dsun {
     }
 
     template <class T>
-    std::optional<T> Vec<T>::get(uint32_t index) {
+    std::optional<T> Vec<T>::get(uint32_t index) const {
         return this->ptr.get()[index] ? std::optional<T>(this->ptr.get()[index]) : std::nullopt;
     }
 

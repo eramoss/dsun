@@ -115,6 +115,38 @@ TEST_F(VecTest, IndexVec) {
   EXPECT_EQ(vec[4].value(), 5);
 }
 
+TEST_F(VecTest, ContainsVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+
+  EXPECT_TRUE(vec.contains(1));
+  EXPECT_TRUE(vec.contains(2));
+  EXPECT_TRUE(vec.contains(3));
+  EXPECT_TRUE(vec.contains(4));
+  EXPECT_TRUE(vec.contains(5));
+  EXPECT_FALSE(vec.contains(6));
+}
+
+TEST_F(VecTest, IsEmptyVec) {
+  auto vec = dsun::Vec<int>::with_capacity(10);
+
+  EXPECT_TRUE(vec.is_empty());
+  vec.push(1);
+  EXPECT_FALSE(vec.is_empty());
+}
+
+TEST_F(VecTest, IndexOfVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+
+  EXPECT_EQ(vec.index_of(1).value(), 0);
+  EXPECT_EQ(vec.index_of(2).value(), 1);
+  EXPECT_EQ(vec.index_of(3).value(), 2);
+  EXPECT_EQ(vec.index_of(4).value(), 3);
+  EXPECT_EQ(vec.index_of(5).value(), 4);
+  EXPECT_EQ(vec.index_of(6), std::nullopt);
+}
+
 
 TEST_F(VecTest, MapVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
