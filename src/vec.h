@@ -20,7 +20,15 @@ namespace dsun {
           Constructors
         */
         Vec();
-        static Vec<T> from_slice(T* slice);
+
+        template<std::size_t N>
+        static Vec<T> from_slice(const T(&arr)[N]) {
+            auto vec = Vec<T>::with_capacity(N);
+            for (std::size_t i = 0; i < N; ++i) {
+                vec.push(arr[i]);
+            }
+            return vec;
+        }
         static Vec<T> from_list(std::initializer_list<T> list);
         static Vec<T> with_capacity(uint32_t capacity);
 
@@ -66,18 +74,6 @@ namespace dsun {
     Vec<T>::Vec() : length(0), cap(INITIAL_SIZE) {
         static_assert(std::size_t{ sizeof(T) } > 0, "T must be complete type");
         ptr = std::make_unique<T[]>(cap);
-    }
-
-    template <class T>
-    Vec<T> Vec<T>::from_slice(T* slice) {
-        size_t len = 0;
-        while (slice[len] != T{}) {
-            len++;
-        }
-        auto vec = Vec<T>::with_capacity(len * 2);
-        std::copy(slice, slice + len, vec.ptr.get());
-        vec.length = len;
-        return vec;
     }
 
     template <class T>
