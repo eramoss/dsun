@@ -6,7 +6,10 @@ data structures lib
 
 #### cmake
 
+require `Ninja` builder
+
 ```shell
+cmake -S./ -B./build/ -G Ninja
 cmake --build build/ --config Debug --target all --
 ```
 
