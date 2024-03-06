@@ -8,6 +8,8 @@ add_library(dsun SHARED
         src/vec.h)
 set_target_properties(dsun PROPERTIES LINKER_LANGUAGE CXX)
 include_directories(src)
+add_subdirectory(examples)
+# Tests
 add_subdirectory(tests)
 
 include(CTest)
