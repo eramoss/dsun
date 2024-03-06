@@ -22,6 +22,10 @@ namespace dsun {
           Constructors
         */
         Vec();
+        Vec(const Vec<T>& other) : length(other.length), cap(other.cap) {
+            ptr = std::make_unique<T[]>(cap);
+            std::copy(other.ptr.get(), other.ptr.get() + length, ptr.get());
+        }
         template<std::size_t N>
         static Vec<T> from_slice(const T(&arr)[N]) {
             auto vec = Vec<T>::with_capacity(N);
@@ -56,6 +60,9 @@ namespace dsun {
         std::optional<T> operator[](uint32_t index) const {
             return this->get(index);
         }
+
+        Vec<T> operator=(const Vec<T>& other);
+
         bool contains(T value) {
             for (uint32_t i = 0; i < length; i++) {
                 if (this->get(i).value() == value) {
@@ -142,6 +149,15 @@ namespace dsun {
             ptr = std::move(new_ptr);
         }
         ptr.get()[length++] = value;
+    }
+
+    template <class T>
+    Vec<T> Vec<T>::operator=(const Vec<T>& other) {
+        length = other.length;
+        cap = other.cap;
+        ptr = std::make_unique<T[]>(cap);
+        std::copy(other.ptr.get(), other.ptr.get() + length, ptr.get());
+        return *this;
     }
 
     template <class T>

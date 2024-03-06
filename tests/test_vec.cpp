@@ -11,6 +11,18 @@ TEST_F(VecTest, ConstructorTest) {
   EXPECT_EQ(vec.capacity(), 16); //  INITIAL_SIZE
 }
 
+TEST_F(VecTest, CopyConstructorTest) {
+  dsun::Vec<int> vec2 = vec;
+  EXPECT_EQ(vec2.len(), 0);
+  EXPECT_EQ(vec2.capacity(), 16); //  INITIAL_SIZE
+}
+
+TEST_F(VecTest, ConstructorByConstRefTest) {
+  dsun::Vec<int> vec2(vec);
+  EXPECT_EQ(vec2.len(), 0);
+  EXPECT_EQ(vec2.capacity(), 16); //  INITIAL_SIZE
+}
+
 TEST_F(VecTest, TestFromSlice) {
   int arr[] = { 1, 2, 3, 4, 5 };
   auto vec = dsun::Vec<int>::from_slice(arr);
