@@ -7,6 +7,8 @@
 #include <memory>
 #include <optional>
 #include <algorithm>
+#include <functional>
+
 namespace dsun {
     template <class T>
     class Vec {
