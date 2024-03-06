@@ -69,6 +69,16 @@ TEST_F(VecTest, PushVec) {
   EXPECT_EQ(vec.get(5).value(), 6);
 }
 
+TEST_F(VecTest, PushAndGrowVec) {
+  auto vec = dsun::Vec<int>::from_list({ 1 });
+  EXPECT_EQ(vec.capacity(), 2);
+  // vec has capacity of 2 <- 2 * len in from_list
+  vec.push(2);
+  vec.push(3);
+  EXPECT_EQ(vec.capacity(), 4); // initial * 2
+}
+
+
 TEST_F(VecTest, PopVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
   auto vec = dsun::Vec<int>::from_slice(arr);
