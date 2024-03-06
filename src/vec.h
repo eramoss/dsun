@@ -28,8 +28,15 @@ namespace dsun {
         }
         template<std::size_t N>
         static Vec<T> from_slice(const T(&arr)[N]) {
-            auto vec = Vec<T>::with_capacity(N);
+            auto vec = Vec<T>::with_capacity(N * 2);
             for (std::size_t i = 0; i < N; ++i) {
+                vec.push(arr[i]);
+            }
+            return vec;
+        }
+        static Vec<T> from_dyn_array(T* arr, uint32_t len) {
+            auto vec = Vec<T>::with_capacity(len * 2);
+            for (uint32_t i = 0; i < len; ++i) {
                 vec.push(arr[i]);
             }
             return vec;
