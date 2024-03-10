@@ -72,6 +72,7 @@ namespace dsun {
     */
     void push_back(const T& data);
     void push_front(const T& data);
+    void insert_sorted(const T& data);
     std::optional<T> pop_back();
     std::optional<T> pop_front();
 
@@ -109,38 +110,6 @@ namespace dsun {
       return get(index);
     }
 
-    void insert_sorted(const T& data) {
-      auto new_node = std::make_shared<Node>();
-      new_node->data = data;
-
-      if (!head) {
-        head = new_node;
-        tail = new_node;
-        size++;
-        return;
-      }
-
-      if (data < head.value()->data) {
-        new_node->next = head;
-        head = new_node;
-        size++;
-        return;
-      }
-
-      auto current = head;
-      while (current.value()->next && data > current.value()->next.value()->data) {
-        current = current.value()->next;
-      }
-
-      new_node->next = current.value()->next;
-      current.value()->next = new_node;
-
-      if (!new_node->next) {
-        tail = new_node;
-      }
-
-      size++;
-    }
 
   };
 
@@ -209,6 +178,45 @@ namespace dsun {
     head = current.value()->next;
     size--;
     return current.value()->data;
+  }
+
+
+  template<typename T>
+  void LinkedList<T>::insert_sorted(const T& data) {
+    auto new_node = std::make_shared<Node>();
+    new_node->data = data;
+    new_node->next = std::nullopt;
+
+    if (!head) {
+      head = new_node;
+      tail = new_node;
+      size++;
+      return;
+    }
+
+    if (head.value()->data > data) {
+      new_node->next = head;
+      head = new_node;
+      size++;
+      return;
+    }
+
+    auto current = head;
+    node_ptr_opt prev = std::nullopt;
+    while (current.value()->next && current.value()->data < data) {
+      prev = current;
+      current = current.value()->next;
+    }
+
+    if (current.value()->data < data) { // insert at the first node < data
+      current.value()->next = new_node;
+      tail = new_node;
+    }
+    else {  // has no node < data, so insert at the end
+      prev.value()->next = new_node;
+      new_node->next = current;
+    }
+    size++;
   }
 }
 
