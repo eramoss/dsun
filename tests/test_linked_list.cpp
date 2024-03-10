@@ -40,6 +40,20 @@ TEST(LinkedListInitTest, FromSliceTest) {
   }
 }
 
+TEST(LinkedListInitTest, FromPartsTest) {
+  LinkedList<int> list1 = LinkedList<int>::from_list({ 1, 2, 3 });
+  LinkedList<int> list2 = LinkedList<int>::from_list({ 4, 5, 6 });
+
+  LinkedList<int> list_from_parts = LinkedList<int>::from_parts(list1, list2);
+  ASSERT_EQ(list_from_parts.len(), 6);
+
+  for (int i = 1; i <= 6; ++i) {
+    auto node = list_from_parts.pop_front();
+    ASSERT_TRUE(node.has_value());
+    ASSERT_EQ(node.value(), i);
+  }
+}
+
 class LinkedListTest : public ::testing::Test {
 protected:
   LinkedList<int> list;

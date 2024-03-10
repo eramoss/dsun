@@ -54,6 +54,18 @@ namespace dsun {
       return linked_list;
     }
 
+    static LinkedList<T> from_parts(const LinkedList<T>& first, const LinkedList<T>& second) {
+      auto list = LinkedList<T>();
+      for (size_t i = 0; i < first.len(); i++) {
+        list.push_back(first.get(i).value());
+      }
+      for (size_t i = 0; i < second.len(); i++) {
+        list.push_back(second.get(i).value());
+      }
+
+      return list;
+    }
+
 
     /*
       Primary methods
