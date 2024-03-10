@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 23)
 
 
 add_library(dsun SHARED
-        src/vec.h)
+        src/vec.h
+        src/linked_list.h
+        )
 set_target_properties(dsun PROPERTIES LINKER_LANGUAGE CXX)
 include_directories(src)
 add_subdirectory(examples)
