@@ -196,3 +196,31 @@ TEST_F(LinkedListTest, InsertSorted) {
   EXPECT_EQ(list.front().value(), 1);
   EXPECT_EQ(list.back().value(), 20);
 }
+
+
+TEST(LinkedListCustomTypeTest, InsertSorted) {
+  struct CustomType {
+    int value;
+    bool operator<(const CustomType& other) const {
+      return value < other.value;
+    }
+    bool operator>(const CustomType& other) const {
+      return value > other.value;
+    }
+  };
+  auto list = LinkedList<CustomType>();
+  list.insert_sorted(CustomType{ 10 });
+  EXPECT_EQ(list.len(), 1);
+  EXPECT_EQ(list.front().value().value, 10);
+  EXPECT_EQ(list.back().value().value, 10);
+
+  list.insert_sorted(CustomType{ 5 });
+  EXPECT_EQ(list.len(), 2);
+  EXPECT_EQ(list.front().value().value, 5);
+  EXPECT_EQ(list.back().value().value, 10);
+
+  list.insert_sorted(CustomType{ 15 });
+  EXPECT_EQ(list.len(), 3);
+  EXPECT_EQ(list.front().value().value, 5);
+  EXPECT_EQ(list.back().value().value, 15);
+}
