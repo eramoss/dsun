@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <optional>
-
+#include <utils.h>
 namespace dsun {
 
   template<typename T>
@@ -183,6 +183,8 @@ namespace dsun {
 
   template<typename T>
   void LinkedList<T>::insert_sorted(const T& data) {
+    static_assert(is_comparable<T>::value, "T must be comparable");
+
     auto new_node = std::make_shared<Node>();
     new_node->data = data;
     new_node->next = std::nullopt;
