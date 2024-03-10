@@ -6,7 +6,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 set(TEST_SOURCES
+    main.cpp
     test_vec.cpp
+    test_linked_list.cpp
 )
 
 add_executable(dsun_tests ${TEST_SOURCES})
