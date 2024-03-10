@@ -109,6 +109,39 @@ namespace dsun {
       return get(index);
     }
 
+    void insert_sorted(const T& data) {
+      auto new_node = std::make_shared<Node>();
+      new_node->data = data;
+
+      if (!head) {
+        head = new_node;
+        tail = new_node;
+        size++;
+        return;
+      }
+
+      if (data < head.value()->data) {
+        new_node->next = head;
+        head = new_node;
+        size++;
+        return;
+      }
+
+      auto current = head;
+      while (current.value()->next && data > current.value()->next.value()->data) {
+        current = current.value()->next;
+      }
+
+      new_node->next = current.value()->next;
+      current.value()->next = new_node;
+
+      if (!new_node->next) {
+        tail = new_node;
+      }
+
+      size++;
+    }
+
   };
 
 

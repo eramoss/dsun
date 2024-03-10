@@ -165,3 +165,34 @@ TEST_F(LinkedListTest, OperatorIndex) {
   EXPECT_FALSE(list[3].has_value());
 }
 
+TEST_F(LinkedListTest, InsertSorted) {
+  list.insert_sorted(10);
+  EXPECT_EQ(list.len(), 1);
+  EXPECT_EQ(list.front().value(), 10);
+  EXPECT_EQ(list.back().value(), 10);
+
+  list.insert_sorted(5);
+  EXPECT_EQ(list.len(), 2);
+  EXPECT_EQ(list.front().value(), 5);
+  EXPECT_EQ(list.back().value(), 10);
+
+  list.insert_sorted(15);
+  EXPECT_EQ(list.len(), 3);
+  EXPECT_EQ(list.front().value(), 5);
+  EXPECT_EQ(list.back().value(), 15);
+
+  list.insert_sorted(8);
+  EXPECT_EQ(list.len(), 4);
+  EXPECT_EQ(list.front().value(), 5);
+  EXPECT_EQ(list.back().value(), 15);
+
+  list.insert_sorted(20);
+  EXPECT_EQ(list.len(), 5);
+  EXPECT_EQ(list.front().value(), 5);
+  EXPECT_EQ(list.back().value(), 20);
+
+  list.insert_sorted(1);
+  EXPECT_EQ(list.len(), 6);
+  EXPECT_EQ(list.front().value(), 1);
+  EXPECT_EQ(list.back().value(), 20);
+}
