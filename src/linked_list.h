@@ -105,6 +105,18 @@ namespace dsun {
       }
       return current.value()->data;
     }
+    std::optional<T*> get_mut(size_t index) {
+      if (index >= size) {
+        return std::nullopt;
+      }
+
+      auto current = head;
+      for (size_t i = 0; i < index; i++) {
+        current = current.value()->next;
+      }
+      return &current.value()->data;
+    }
+
     std::optional<T> operator[](size_t index) const {
       return get(index);
     }
