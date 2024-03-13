@@ -72,7 +72,6 @@ namespace dsun {
     */
     void push_back(const T& data);
     void push_front(const T& data);
-    void insert_sorted(const T& data);
     std::optional<T> pop_back();
     std::optional<T> pop_front();
 
@@ -180,46 +179,6 @@ namespace dsun {
     return current.value()->data;
   }
 
-
-  template<typename T>
-  void LinkedList<T>::insert_sorted(const T& data) {
-    static_assert(is_comparable<T>::value, "T must be comparable");
-
-    auto new_node = std::make_shared<Node>();
-    new_node->data = data;
-    new_node->next = std::nullopt;
-
-    if (!head) {
-      head = new_node;
-      tail = new_node;
-      size++;
-      return;
-    }
-
-    if (head.value()->data > data) {
-      new_node->next = head;
-      head = new_node;
-      size++;
-      return;
-    }
-
-    auto current = head;
-    node_ptr_opt prev = std::nullopt;
-    while (current.value()->next && current.value()->data < data) {
-      prev = current;
-      current = current.value()->next;
-    }
-
-    if (current.value()->data < data) { // insert at the first node < data
-      current.value()->next = new_node;
-      tail = new_node;
-    }
-    else {  // has no node < data, so insert at the end
-      prev.value()->next = new_node;
-      new_node->next = current;
-    }
-    size++;
-  }
 }
 
 
