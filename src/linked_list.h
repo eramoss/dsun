@@ -74,7 +74,7 @@ namespace dsun {
     void push_front(const T& data);
     std::optional<T> pop_back();
     std::optional<T> pop_front();
-
+    std::pair<LinkedList<T>, LinkedList<T>> split_at(size_t index);
 
     /*
       Getters
@@ -109,6 +109,19 @@ namespace dsun {
       return get(index);
     }
 
+    /*
+      Secondary functions
+    */
+    LinkedList<T> merge(const LinkedList<T>& other) const {
+      auto list = LinkedList<T>::from_parts(*this, other);
+      return list;
+    }
+    std::optional<T> insert(size_t index, const T& data) {
+      auto [list1, list2] = split_at(index - 1);
+      list1.push_back(data);
+      *this = from_parts(list1, list2);
+      return data;
+    }
 
   };
 
@@ -177,6 +190,29 @@ namespace dsun {
     head = current.value()->next;
     size--;
     return current.value()->data;
+  }
+
+  template<typename T>
+  std::pair<LinkedList<T>, LinkedList<T>> LinkedList<T>::split_at(size_t index) {
+    LinkedList<T> first;
+    LinkedList<T> second;
+    index = index + 1;
+    if (index >= size) {
+      return { first, second };
+    }
+
+    auto current = head;
+    for (size_t i = 0; i < index; i++) {
+      first.push_back(current.value()->data);
+      current = current.value()->next;
+    }
+
+    while (current) {
+      second.push_back(current.value()->data);
+      current = current.value()->next;
+    }
+
+    return { first, second };
   }
 
 }

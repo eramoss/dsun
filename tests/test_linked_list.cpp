@@ -165,62 +165,55 @@ TEST_F(LinkedListTest, OperatorIndex) {
   EXPECT_FALSE(list[3].has_value());
 }
 
-TEST_F(LinkedListTest, InsertSorted) {
-  list.insert_sorted(10);
-  EXPECT_EQ(list.len(), 1);
-  EXPECT_EQ(list.front().value(), 10);
-  EXPECT_EQ(list.back().value(), 10);
+TEST_F(LinkedListTest, Split) {
+  list.push_back(10);
+  list.push_back(20);
+  list.push_back(30);
+  list.push_back(40);
+  list.push_back(50);
 
-  list.insert_sorted(5);
-  EXPECT_EQ(list.len(), 2);
-  EXPECT_EQ(list.front().value(), 5);
-  EXPECT_EQ(list.back().value(), 10);
+  auto [list1, list2] = list.split_at(2);
+  EXPECT_EQ(list1.len(), 3);
+  EXPECT_EQ(list2.len(), 2);
 
-  list.insert_sorted(15);
-  EXPECT_EQ(list.len(), 3);
-  EXPECT_EQ(list.front().value(), 5);
-  EXPECT_EQ(list.back().value(), 15);
+  EXPECT_EQ(list1[0].value(), 10);
+  EXPECT_EQ(list1[1].value(), 20);
+  EXPECT_EQ(list1[2].value(), 30);
 
-  list.insert_sorted(8);
-  EXPECT_EQ(list.len(), 4);
-  EXPECT_EQ(list.front().value(), 5);
-  EXPECT_EQ(list.back().value(), 15);
-
-  list.insert_sorted(20);
-  EXPECT_EQ(list.len(), 5);
-  EXPECT_EQ(list.front().value(), 5);
-  EXPECT_EQ(list.back().value(), 20);
-
-  list.insert_sorted(1);
-  EXPECT_EQ(list.len(), 6);
-  EXPECT_EQ(list.front().value(), 1);
-  EXPECT_EQ(list.back().value(), 20);
+  EXPECT_EQ(list2[0].value(), 40);
+  EXPECT_EQ(list2[1].value(), 50);
 }
 
+TEST_F(LinkedListTest, SplitEmptyOutBounds) {
+  auto [list1, list2] = list.split_at(2);
+  EXPECT_EQ(list1.len(), 0);
+  EXPECT_EQ(list2.len(), 0);
+}
 
-TEST(LinkedListCustomTypeTest, InsertSorted) {
-  struct CustomType {
-    int value;
-    bool operator<(const CustomType& other) const {
-      return value < other.value;
-    }
-    bool operator>(const CustomType& other) const {
-      return value > other.value;
-    }
-  };
-  auto list = LinkedList<CustomType>();
-  list.insert_sorted(CustomType{ 10 });
-  EXPECT_EQ(list.len(), 1);
-  EXPECT_EQ(list.front().value().value, 10);
-  EXPECT_EQ(list.back().value().value, 10);
+TEST_F(LinkedListTest, Merge) {
+  LinkedList<int> list1 = LinkedList<int>::from_list({ 1, 2, 3 });
+  LinkedList<int> list2 = LinkedList<int>::from_list({ 4, 5, 6 });
 
-  list.insert_sorted(CustomType{ 5 });
-  EXPECT_EQ(list.len(), 2);
-  EXPECT_EQ(list.front().value().value, 5);
-  EXPECT_EQ(list.back().value().value, 10);
+  auto merged = list1.merge(list2);
+  EXPECT_EQ(merged.len(), 6);
 
-  list.insert_sorted(CustomType{ 15 });
-  EXPECT_EQ(list.len(), 3);
-  EXPECT_EQ(list.front().value().value, 5);
-  EXPECT_EQ(list.back().value().value, 15);
+  for (int i = 1; i <= 6; ++i) {
+    auto node = merged.pop_front();
+    ASSERT_TRUE(node.has_value());
+    EXPECT_EQ(node.value(), i);
+  }
+}
+
+TEST_F(LinkedListTest, Insert) {
+  list.push_back(10);
+  list.push_back(20);
+  list.push_back(30);
+
+  list.insert(1, 15);
+  EXPECT_EQ(list.len(), 4);
+
+  EXPECT_EQ(list[0].value(), 10);
+  EXPECT_EQ(list[1].value(), 15);
+  EXPECT_EQ(list[2].value(), 20);
+  EXPECT_EQ(list[3].value(), 30);
 }
