@@ -108,6 +108,9 @@ namespace dsun {
     std::optional<T> operator[](size_t index) const {
       return get(index);
     }
+    bool empty() const {
+      return size == 0;
+    }
 
     /*
       Secondary functions
