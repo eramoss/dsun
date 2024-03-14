@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <utils.h>
+#include <iostream>
 namespace dsun {
 
   template<typename T>
@@ -15,6 +16,11 @@ namespace dsun {
     struct Node {
       T data;
       std::optional<std::shared_ptr<Node>> next;
+      ~Node() {
+        if (std::getenv("DEBUG_CLEAN") && std::string(std::getenv("DEBUG_CLEAN")) == "true") {
+          std::cout << "Deleting Node with data: " << data << std::endl;
+        }
+      }
     };
     using node_ptr_opt = std::optional<std::shared_ptr<Node>>;
 
@@ -57,15 +63,20 @@ namespace dsun {
     static LinkedList<T> from_parts(const LinkedList<T>& first, const LinkedList<T>& second) {
       auto list = LinkedList<T>();
       for (size_t i = 0; i < first.len(); i++) {
-        list.push_back(first.get(i).value());
+        list.push_back(first.get_at(i).value());
       }
       for (size_t i = 0; i < second.len(); i++) {
-        list.push_back(second.get(i).value());
+        list.push_back(second.get_at(i).value());
       }
 
       return list;
     }
 
+    void clean() {
+      head = std::nullopt;
+      tail = std::nullopt;
+      size = 0;
+    }
 
     /*
       Primary methods
@@ -96,7 +107,7 @@ namespace dsun {
       }
       return tail.value()->data;
     }
-    std::optional<T> get(size_t index) const {
+    std::optional<T> get_at(size_t index) const {
       if (index >= size) {
         return std::nullopt;
       }
@@ -107,7 +118,7 @@ namespace dsun {
       }
       return current.value()->data;
     }
-    std::optional<T*> get_mut(size_t index) {
+    std::optional<T*> get_at_mut(size_t index) {
       if (index >= size) {
         return std::nullopt;
       }
@@ -120,7 +131,7 @@ namespace dsun {
     }
 
     std::optional<T> operator[](size_t index) const {
-      return get(index);
+      return get_at(index);
     }
     bool empty() const {
       return size == 0;

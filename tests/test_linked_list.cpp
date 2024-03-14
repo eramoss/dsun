@@ -143,15 +143,24 @@ TEST_F(LinkedListTest, Back) {
   EXPECT_EQ(list.back().value(), 10);
 }
 
-TEST_F(LinkedListTest, Get) {
+TEST_F(LinkedListTest, GetAt) {
   list.push_back(10);
   list.push_back(20);
   list.push_back(30);
 
-  EXPECT_EQ(list.get(0).value(), 10);
-  EXPECT_EQ(list.get(1).value(), 20);
-  EXPECT_EQ(list.get(2).value(), 30);
-  EXPECT_FALSE(list.get(3).has_value());
+  EXPECT_EQ(list.get_at(0).value(), 10);
+  EXPECT_EQ(list.get_at(1).value(), 20);
+  EXPECT_EQ(list.get_at(2).value(), 30);
+  EXPECT_FALSE(list.get_at(3).has_value());
+}
+TEST_F(LinkedListTest, GetAtMut) {
+  list.push_back(10);
+  list.push_back(20);
+  list.push_back(30);
+
+  int* data = list.get_at_mut(0).value();
+  *data = 15;
+  EXPECT_EQ(list.get_at(0).value(), 15);
 }
 
 TEST_F(LinkedListTest, OperatorIndex) {

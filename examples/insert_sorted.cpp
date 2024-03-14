@@ -1,5 +1,7 @@
 #include "../src/linked_list.h"
 #include <iostream>
+#include <iostream>
+#include <sys/resource.h>
 
 bool is_sorted(const dsun::LinkedList<char>& list) {
   if (list.empty()) return true;
@@ -16,8 +18,8 @@ void stupid_sort(dsun::LinkedList<char>& list) {
     for (size_t j = i + 1; j < list.len(); j++) {
       if (list[i].value() > list[j].value()) {
         char temp = list[i].value();
-        *list.get_mut(i).value() = list[j].value();
-        *list.get_mut(j).value() = temp;
+        *list.get_at_mut(i).value() = list[j].value();
+        *list.get_at_mut(j).value() = temp;
       }
     }
   }
@@ -48,23 +50,10 @@ void insert_sorted(dsun::LinkedList<char>& list, char value) {
 }
 
 int main(int argc, char const* argv[]) {
-  dsun::LinkedList<char> list;
-  insert_sorted(list, 'c');
-  insert_sorted(list, 'a');
-  insert_sorted(list, 'b');
-  insert_sorted(list, 'd');
-  insert_sorted(list, 't');
-  insert_sorted(list, 'z');
-  insert_sorted(list, 'y');
-  insert_sorted(list, 'e');
-  insert_sorted(list, 'x');
-  insert_sorted(list, 'f');
-  insert_sorted(list, 'g');
-  list.push_back('h');
-  insert_sorted(list, 'i');
+  auto list = dsun::LinkedList<char>::from_slice({ 'a', 'b', 'd', 'e' });
 
-  for (size_t i = 0; i < list.len(); i++) {
-    std::cout << list[i].value() << " ";
-  }
+  list.clean();
+
+
   return 0;
 }
