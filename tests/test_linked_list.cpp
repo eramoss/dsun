@@ -290,3 +290,24 @@ TEST(HighOrderFunctions, map_mut) {
     EXPECT_EQ(*it, (it.index() * 10 + 10) * 2);
   }
 }
+
+TEST(HighOrderFunctions, intersection) {
+  auto list1 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list2 = LinkedList<int>::from_list({ 20, 40, 60, 80, 100 });
+  auto new_list = list1.intersection(list2);
+  EXPECT_EQ(new_list.len(), 2);
+  for (auto it = new_list.begin(); it.has_next(); ++it) {
+    EXPECT_EQ(*it, (it.index() * 20) + 20);
+  }
+}
+
+TEST(HighOrderFunctions, difference) {
+  auto list1 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list2 = LinkedList<int>::from_list({ 20, 40, 60, 80, 100 });
+  auto expected_list = LinkedList<int>::from_list({ 10, 30, 50,60, 80, 100 });
+  auto new_list = list1.difference(list2);
+  EXPECT_EQ(new_list.len(), 6);
+  for (auto it = new_list.begin(); it.has_next(); ++it) {
+    EXPECT_EQ(*it, expected_list.pop_front().value());
+  }
+}

@@ -189,10 +189,10 @@ namespace dsun {
         return current.value()->next.has_value();
       }
     };
-    Iterator begin() {
+    Iterator begin() const {
       return Iterator(head);
     }
-    Iterator end() {
+    Iterator end() const {
       return Iterator(std::nullopt);
     }
 
@@ -208,6 +208,31 @@ namespace dsun {
       for (auto it = begin(); it != end(); ++it) {
         f(it.get_mut());
       }
+    }
+
+    LinkedList<T> intersection(const LinkedList<T>& other) {
+      auto list = LinkedList<T>();
+      for (auto it = begin(); it != end(); ++it) {
+        if (other.get(*it).has_value()) {
+          list.push_back(*it);
+        }
+      }
+      return list;
+    }
+
+    LinkedList<T> difference(const LinkedList<T>& other) {
+      auto list = LinkedList<T>();
+      for (auto it = begin(); it != end(); ++it) {
+        if (!other.get(*it).has_value()) {
+          list.push_back(*it);
+        }
+      }
+      for (auto it = other.begin(); it != other.end(); ++it) {
+        if (!get(*it).has_value()) {
+          list.push_back(*it);
+        }
+      }
+      return list;
     }
 
   };
