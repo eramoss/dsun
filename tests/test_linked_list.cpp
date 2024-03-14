@@ -258,3 +258,10 @@ TEST_F(LinkedListTest, RemoveOutOfBoundsData) {
   list.remove(31);
   EXPECT_EQ(list.len(), 0);
 }
+
+TEST(IteratorLinkedListTest, next) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  for (auto it = list.begin(); it.has_next(); ++it) {
+    EXPECT_EQ(*it, it.index() * 10 + 10);
+  }
+}

@@ -71,11 +71,13 @@ namespace dsun {
 
       return list;
     }
-
     void clean() {
       head = std::nullopt;
       tail = std::nullopt;
       size = 0;
+    }
+    ~LinkedList() {
+      clean();
     }
 
     /*
@@ -157,9 +159,50 @@ namespace dsun {
       return size == 0;
     }
 
+    class Iterator {
+    private:
+      node_ptr_opt current;
+      size_t index_;
+    public:
+      Iterator(node_ptr_opt current) : current(current), index_(0) {}
+      T operator*() {
+        return current.value()->data;
+      }
+      Iterator& operator++() {
+        current = current.value()->next;
+        index_++;
+        return *this;
+      }
+      bool operator!=(const Iterator& other) {
+        return current != other.current;
+      }
+      bool operator==(const Iterator& other) {
+        return current == other.current;
+      }
+      size_t index() {
+        return index_;
+      }
+      bool has_next() {
+        return current.value()->next.has_value();
+      }
+    };
+    Iterator begin() {
+      return Iterator(head);
+    }
+    Iterator end() {
+      return Iterator(std::nullopt);
+    }
+
   };
 
 
+  /*
+    Implementation of primary functions
+
+    Dont touch on it without be sure that is necessary
+    Have a good time
+    :)
+  */
   template<typename T>
   void LinkedList<T>::push_back(const T& data) {
     auto new_node = std::make_shared<Node>();
