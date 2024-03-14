@@ -165,45 +165,6 @@ TEST_F(LinkedListTest, OperatorIndex) {
   EXPECT_FALSE(list[3].has_value());
 }
 
-TEST_F(LinkedListTest, Split) {
-  list.push_back(10);
-  list.push_back(20);
-  list.push_back(30);
-  list.push_back(40);
-  list.push_back(50);
-
-  auto [list1, list2] = list.split_at(2);
-  EXPECT_EQ(list1.len(), 3);
-  EXPECT_EQ(list2.len(), 2);
-
-  EXPECT_EQ(list1[0].value(), 10);
-  EXPECT_EQ(list1[1].value(), 20);
-  EXPECT_EQ(list1[2].value(), 30);
-
-  EXPECT_EQ(list2[0].value(), 40);
-  EXPECT_EQ(list2[1].value(), 50);
-}
-
-TEST_F(LinkedListTest, SplitEmptyOutBounds) {
-  auto [list1, list2] = list.split_at(2);
-  EXPECT_EQ(list1.len(), 0);
-  EXPECT_EQ(list2.len(), 0);
-}
-
-TEST_F(LinkedListTest, Merge) {
-  LinkedList<int> list1 = LinkedList<int>::from_list({ 1, 2, 3 });
-  LinkedList<int> list2 = LinkedList<int>::from_list({ 4, 5, 6 });
-
-  auto merged = list1.merge(list2);
-  EXPECT_EQ(merged.len(), 6);
-
-  for (int i = 1; i <= 6; ++i) {
-    auto node = merged.pop_front();
-    ASSERT_TRUE(node.has_value());
-    EXPECT_EQ(node.value(), i);
-  }
-}
-
 TEST_F(LinkedListTest, Insert) {
   list.push_back(10);
   list.push_back(20);
@@ -216,4 +177,54 @@ TEST_F(LinkedListTest, Insert) {
   EXPECT_EQ(list[1].value(), 15);
   EXPECT_EQ(list[2].value(), 20);
   EXPECT_EQ(list[3].value(), 30);
+}
+
+TEST_F(LinkedListTest, InsertEmpty) {
+  list.insert(0, 10);
+  EXPECT_EQ(list.len(), 1);
+  EXPECT_EQ(list[0].value(), 10);
+}
+
+TEST_F(LinkedListTest, InsertOutBounds) {
+  list.insert(2, 10);
+  EXPECT_EQ(list.len(), 0);
+}
+
+TEST_F(LinkedListTest, RemoveIndex) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  list.remove_at(2);
+  EXPECT_EQ(list.len(), 4);
+  EXPECT_EQ(list[2].value(), 40);
+}
+
+TEST_F(LinkedListTest, RemoveEmpty) {
+  LinkedList<int> list;
+  list.remove_at(0);
+  EXPECT_EQ(list.len(), 0);
+}
+
+TEST_F(LinkedListTest, RemoveOutOfBounds) {
+  LinkedList<int> list;
+  list.remove_at(2);
+  EXPECT_EQ(list.len(), 0);
+}
+
+TEST_F(LinkedListTest, RemoveData) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  list.remove(30);
+  EXPECT_EQ(list.len(), 4);
+  EXPECT_EQ(list[2].value(), 40);
+}
+
+TEST_F(LinkedListTest, RemoveUnexpectedData) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  list.remove(31);
+  EXPECT_EQ(list.len(), 5);
+  EXPECT_EQ(list[2].value(), 30);
+}
+
+TEST_F(LinkedListTest, RemoveOutOfBoundsData) {
+  LinkedList<int> list;
+  list.remove(31);
+  EXPECT_EQ(list.len(), 0);
 }
