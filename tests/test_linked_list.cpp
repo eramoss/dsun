@@ -265,3 +265,28 @@ TEST(IteratorLinkedListTest, next) {
     EXPECT_EQ(*it, it.index() * 10 + 10);
   }
 }
+TEST(IteratorLinkedListTest, getMut) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  for (auto it = list.begin(); it.has_next(); ++it) {
+    it.get_mut() = 7;
+  }
+  for (auto it = list.begin(); it.has_next(); ++it) {
+    EXPECT_EQ(*it, 7);
+  }
+}
+
+TEST(HighOrderFunctions, map) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto new_list = list.map([](int x) { return x * 2; });
+  for (auto it = new_list.begin(); it.has_next(); ++it) {
+    EXPECT_EQ(*it, (it.index() * 10 + 10) * 2);
+  }
+}
+
+TEST(HighOrderFunctions, map_mut) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  list.map_mut([](int& x) { x = x * 2; });
+  for (auto it = list.begin(); it.has_next(); ++it) {
+    EXPECT_EQ(*it, (it.index() * 10 + 10) * 2);
+  }
+}

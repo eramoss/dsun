@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <utils.h>
+#include <functional>
 #include <iostream>
 namespace dsun {
 
@@ -158,7 +159,6 @@ namespace dsun {
     bool empty() const {
       return size == 0;
     }
-
     class Iterator {
     private:
       node_ptr_opt current;
@@ -166,6 +166,9 @@ namespace dsun {
     public:
       Iterator(node_ptr_opt current) : current(current), index_(0) {}
       T operator*() {
+        return current.value()->data;
+      }
+      T& get_mut() {
         return current.value()->data;
       }
       Iterator& operator++() {
@@ -191,6 +194,20 @@ namespace dsun {
     }
     Iterator end() {
       return Iterator(std::nullopt);
+    }
+
+    LinkedList<T> map(std::function<T(T)> f) {
+      auto list = LinkedList<T>();
+      for (auto it = begin(); it != end(); ++it) {
+        list.push_back(f(*it));
+      }
+      return list;
+    }
+
+    void map_mut(std::function<void(T&)> f) {
+      for (auto it = begin(); it != end(); ++it) {
+        f(it.get_mut());
+      }
     }
 
   };
