@@ -311,3 +311,12 @@ TEST(HighOrderFunctions, difference) {
     EXPECT_EQ(*it, expected_list.pop_front().value());
   }
 }
+
+TEST(HighOrderFunctions, filter) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto new_list = list.filter([](int x) { return x % 20 == 0; });
+  EXPECT_EQ(new_list.len(), 2);
+  for (auto it = new_list.begin(); it.has_next(); ++it) {
+    EXPECT_EQ(*it, (it.index() * 20) + 20);
+  }
+}

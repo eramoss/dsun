@@ -196,7 +196,7 @@ namespace dsun {
       return Iterator(std::nullopt);
     }
 
-    LinkedList<T> map(std::function<T(T)> f) {
+    LinkedList<T> map(std::function<T(const T&)> f) {
       auto list = LinkedList<T>();
       for (auto it = begin(); it != end(); ++it) {
         list.push_back(f(*it));
@@ -208,6 +208,16 @@ namespace dsun {
       for (auto it = begin(); it != end(); ++it) {
         f(it.get_mut());
       }
+    }
+
+    LinkedList<T> filter(std::function<bool(const T&)> f) {
+      auto list = LinkedList<T>();
+      for (auto it = begin(); it != end(); ++it) {
+        if (f(*it)) {
+          list.push_back(*it);
+        }
+      }
+      return list;
     }
 
     LinkedList<T> intersection(const LinkedList<T>& other) {
