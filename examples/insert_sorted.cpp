@@ -18,8 +18,8 @@ void stupid_sort(dsun::LinkedList<char>& list) {
     for (size_t j = i + 1; j < list.len(); j++) {
       if (list[i].value() > list[j].value()) {
         char temp = list[i].value();
-        *list.get_at_mut(i).value() = list[j].value();
-        *list.get_at_mut(j).value() = temp;
+        *list.at_mut(i).value() = list[j].value();
+        *list.at_mut(j).value() = temp;
       }
     }
   }

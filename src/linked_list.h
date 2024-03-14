@@ -63,10 +63,10 @@ namespace dsun {
     static LinkedList<T> from_parts(const LinkedList<T>& first, const LinkedList<T>& second) {
       auto list = LinkedList<T>();
       for (size_t i = 0; i < first.len(); i++) {
-        list.push_back(first.get_at(i).value());
+        list.push_back(first.at(i).value());
       }
       for (size_t i = 0; i < second.len(); i++) {
-        list.push_back(second.get_at(i).value());
+        list.push_back(second.at(i).value());
       }
 
       return list;
@@ -107,7 +107,27 @@ namespace dsun {
       }
       return tail.value()->data;
     }
-    std::optional<T> get_at(size_t index) const {
+    std::optional<T> get(const T& data) const {
+      auto current = head;
+      while (current) {
+        if (current.value()->data == data) {
+          return current.value()->data;
+        }
+        current = current.value()->next;
+      }
+      return std::nullopt;
+    }
+    std::optional<T*> get_mut(const T& data) {
+      auto current = head;
+      while (current) {
+        if (current.value()->data == data) {
+          return &current.value()->data;
+        }
+        current = current.value()->next;
+      }
+      return std::nullopt;
+    }
+    std::optional<T> at(size_t index) const {
       if (index >= size) {
         return std::nullopt;
       }
@@ -118,7 +138,7 @@ namespace dsun {
       }
       return current.value()->data;
     }
-    std::optional<T*> get_at_mut(size_t index) {
+    std::optional<T*> at_mut(size_t index) {
       if (index >= size) {
         return std::nullopt;
       }
@@ -131,7 +151,7 @@ namespace dsun {
     }
 
     std::optional<T> operator[](size_t index) const {
-      return get_at(index);
+      return at(index);
     }
     bool empty() const {
       return size == 0;
