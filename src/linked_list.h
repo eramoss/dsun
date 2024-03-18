@@ -180,6 +180,13 @@ namespace dsun {
     bool empty() const {
       return size == 0;
     }
+    LinkedList<T> operator-(const LinkedList<T>& other) {
+      auto list = *this;
+      for (auto it = other.begin(); it != other.end(); ++it) {
+        list.remove(*it);
+      }
+      return list;
+    }
     class Iterator {
     private:
       node_ptr_opt current;

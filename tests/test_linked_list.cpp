@@ -329,11 +329,20 @@ TEST(HighOrderFunctions, filter) {
   }
 }
 
-TEST(HighOrderFunctions, EqualityOperator) {
+TEST(Operators, EqualityOperator) {
   auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
   auto list2 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
   auto list3 = LinkedList<int>::from_list({ 10, 20, 30, 40, 60 });
 
   EXPECT_EQ(list, list2);
   EXPECT_NE(list, list3);
+}
+
+TEST(Operators, MinusOperator) {
+  auto list = LinkedList<int>::from_list({ 3, 20, 30, 40, 50 });
+  auto list2 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list3 = list - list2;
+
+  EXPECT_EQ(list3.len(), 1);
+  EXPECT_EQ(list3[0].value(), 3);
 }
