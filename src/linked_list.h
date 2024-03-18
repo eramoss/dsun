@@ -72,6 +72,13 @@ namespace dsun {
 
       return list;
     }
+    LinkedList<T> operator=(const LinkedList<T>& other) {
+      clean();
+      for (auto it = other.begin(); it != other.end(); ++it) {
+        push_back(*it);
+      }
+      return *this;
+    }
     void clean() {
       head = std::nullopt;
       tail = std::nullopt;
