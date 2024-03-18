@@ -320,3 +320,12 @@ TEST(HighOrderFunctions, filter) {
     EXPECT_EQ(*it, (it.index() * 20) + 20);
   }
 }
+
+TEST(HighOrderFunctions, EqualityOperator) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list2 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list3 = LinkedList<int>::from_list({ 10, 20, 30, 40, 60 });
+
+  EXPECT_EQ(list, list2);
+  EXPECT_NE(list, list3);
+}

@@ -156,6 +156,20 @@ namespace dsun {
     std::optional<T> operator[](size_t index) const {
       return at(index);
     }
+    bool operator==(const LinkedList<T>& other) const {
+      if (size != other.size) {
+        return false;
+      }
+      for (auto it = begin(), it2 = other.begin(); it != end(); ++it, ++it2) {
+        if (*it != *it2) {
+          return false;
+        }
+      }
+      return true;
+    }
+    bool operator!=(const LinkedList<T>& other) const {
+      return !(*this == other);
+    }
     bool empty() const {
       return size == 0;
     }
