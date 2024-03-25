@@ -4,7 +4,7 @@ project(dsun)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
-add_library(dsun SHARED
+add_library(dsun
         src/dsun.h
         )
 
