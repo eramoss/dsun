@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../src/linked_list.h"
+#include "dsun.h"
 using namespace dsun;
 template<typename T>
 

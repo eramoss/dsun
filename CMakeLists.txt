@@ -5,8 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 add_library(dsun SHARED
-        src/vec.h
-        src/linked_list.h
+        src/dsun.h
         )
 
 set_target_properties(dsun PROPERTIES LINKER_LANGUAGE CXX)

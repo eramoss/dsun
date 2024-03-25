@@ -1,4 +1,4 @@
-#include "vec.h"
+#include "dsun.h"
 #include "iostream"
 
 class NumericSet {
