@@ -19,11 +19,9 @@ namespace dsun {
       std::optional<std::shared_ptr<Node>> next;
 #ifdef DEBUG
       ~Node() {
-#ifdef DSUN_DEBUG
         if (std::getenv("DEBUG_CLEAN") && std::string(std::getenv("DEBUG_CLEAN")) == "true") {
           std::cout << "Deleting Node with data: " << data << std::endl;
         }
-#endif
       }
 #endif
     };
@@ -277,7 +275,7 @@ namespace dsun {
       return list;
     }
 
-  };
+    };
 
 
   /*
@@ -429,7 +427,7 @@ namespace dsun {
     return std::nullopt;
   }
 
-}
+  }
 
 
 #endif
