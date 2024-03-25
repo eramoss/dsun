@@ -5,11 +5,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-set(TEST_SOURCES
-    main.cpp
-    test_vec.cpp
-    test_linked_list.cpp
-)
+file(GLOB TEST_SOURCES "*.cpp")
 
 add_executable(dsun_tests ${TEST_SOURCES})
 
