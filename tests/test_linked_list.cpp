@@ -54,6 +54,14 @@ TEST(LinkedListInitTest, FromPartsTest) {
   }
 }
 
+TEST(LinkedListInitTest, Copy) {
+  LinkedList<int> list1 = LinkedList<int>::from_list({ 1, 2, 3 });
+  LinkedList<int> list2 = LinkedList<int>::from_list({ 4, 5, 6 });
+
+  list1 = list2;
+  EXPECT_EQ(list1, list2);
+}
+
 class LinkedListTest : public ::testing::Test {
 protected:
   LinkedList<int> list;
@@ -319,4 +327,22 @@ TEST(HighOrderFunctions, filter) {
   for (auto it = new_list.begin(); it.has_next(); ++it) {
     EXPECT_EQ(*it, (it.index() * 20) + 20);
   }
+}
+
+TEST(Operators, EqualityOperator) {
+  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list2 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list3 = LinkedList<int>::from_list({ 10, 20, 30, 40, 60 });
+
+  EXPECT_EQ(list, list2);
+  EXPECT_NE(list, list3);
+}
+
+TEST(Operators, MinusOperator) {
+  auto list = LinkedList<int>::from_list({ 3, 20, 30, 40, 50 });
+  auto list2 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
+  auto list3 = list - list2;
+
+  EXPECT_EQ(list3.len(), 1);
+  EXPECT_EQ(list3[0].value(), 3);
 }

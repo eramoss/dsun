@@ -19,9 +19,11 @@ namespace dsun {
       std::optional<std::shared_ptr<Node>> next;
 #ifdef DEBUG
       ~Node() {
+#ifdef DSUN_DEBUG
         if (std::getenv("DEBUG_CLEAN") && std::string(std::getenv("DEBUG_CLEAN")) == "true") {
           std::cout << "Deleting Node with data: " << data << std::endl;
         }
+#endif
       }
 #endif
     };
@@ -73,6 +75,13 @@ namespace dsun {
       }
 
       return list;
+    }
+    LinkedList<T> operator=(const LinkedList<T>& other) {
+      clean();
+      for (auto it = other.begin(); it != other.end(); ++it) {
+        push_back(*it);
+      }
+      return *this;
     }
     void clean() {
       head = std::nullopt;
@@ -158,8 +167,29 @@ namespace dsun {
     std::optional<T> operator[](size_t index) const {
       return at(index);
     }
+    bool operator==(const LinkedList<T>& other) const {
+      if (size != other.size) {
+        return false;
+      }
+      for (auto it = begin(), it2 = other.begin(); it != end(); ++it, ++it2) {
+        if (*it != *it2) {
+          return false;
+        }
+      }
+      return true;
+    }
+    bool operator!=(const LinkedList<T>& other) const {
+      return !(*this == other);
+    }
     bool empty() const {
       return size == 0;
+    }
+    LinkedList<T> operator-(const LinkedList<T>& other) {
+      auto list = *this;
+      for (auto it = other.begin(); it != other.end(); ++it) {
+        list.remove(*it);
+      }
+      return list;
     }
     class Iterator {
     private:
