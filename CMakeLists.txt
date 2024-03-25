@@ -4,9 +4,7 @@ project(dsun)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
-add_library(dsun
-        src/dsun.h
-        )
+add_library(dsun STATIC src/dsun.h)
 
 set_target_properties(dsun PROPERTIES LINKER_LANGUAGE CXX)
 include_directories(src)

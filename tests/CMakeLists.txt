@@ -7,10 +7,7 @@ FetchContent_MakeAvailable(googletest)
 
 file(GLOB TEST_SOURCES "*.cpp")
 
-add_executable(dsun_tests ${TEST_SOURCES})
+add_executable(dsun_tests ${TEST_SOURCES} ../src/dsun.h)
 
-target_include_directories(dsun_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
-
-target_link_libraries(dsun_tests PRIVATE dsun gtest gtest_main)
-add_dependencies(dsun_tests dsun)
+target_link_libraries(dsun_tests PRIVATE gtest gtest_main)
 enable_testing()
