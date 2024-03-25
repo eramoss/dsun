@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <optional>
-#include <utils.h>
 #include <functional>
 #include <iostream>
 namespace dsun {
@@ -275,7 +274,7 @@ namespace dsun {
       return list;
     }
 
-    };
+  };
 
 
   /*
@@ -427,7 +426,7 @@ namespace dsun {
     return std::nullopt;
   }
 
-  }
+}
 
 
 #endif
