@@ -5,8 +5,8 @@ data structures lib
 ## Build
 
 Require `Cmake` tools  https://cmake.org/
-You can also run as a [python script](python-scripts)
----
+You can also run as a [python script](#python-scripts)
+
 To build inside `build/` you can run:
 ``` sh
  mkdir build
