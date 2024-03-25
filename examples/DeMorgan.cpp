@@ -1,16 +1,15 @@
 #include <iostream>
 #include "dsun.h"
-using namespace dsun;
-template<typename T>
 
-LinkedList<T> DeMorgan(LinkedList<T>& self, LinkedList<T>& other) {
-  auto result = LinkedList<T>();
+template<typename T>
+dsun::LinkedList<T> DeMorgan(dsun::LinkedList<T>& self, dsun::LinkedList<T>& other) {
+  auto result = dsun::LinkedList<T>();
   auto intersec = self.intersection(other);
   for (auto it = intersec.begin(); it != intersec.end(); ++it) {
     self.remove(*it);
     other.remove(*it);
   }
-  result = LinkedList<T>::from_parts(self, other);
+  result = dsun::LinkedList<T>::from_parts(self, other);
   return result;
 }
 
