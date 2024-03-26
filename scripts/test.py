@@ -1,7 +1,8 @@
 import os
 import subprocess
 import sys
-from build import build_cmake_project
+import build
+import ninja_build as ninja
 
 def run_ctest(build_dir):
     '''
@@ -22,7 +23,12 @@ if __name__ == '__main__':
     self_dir = os.path.dirname(os.path.abspath(__file__))
     source_dir = os.path.join(self_dir, '..')
     build_dir =  os.path.join(self_dir,'../build')
-    build_cmake_project(source_dir, build_dir, 'Debug')
+    
+    if  not os.path.exists(os.path.join(build_dir, "build.ninja")):
+        build.build_cmake_project(source_dir, build_dir, 'Debug')
+    else:
+        ninja.build_cmake_project(source_dir, build_dir, 'Debug')
+       
 
     if not os.path.exists(build_dir):
         print('Build directory not found. Run the CMake build script first.')
