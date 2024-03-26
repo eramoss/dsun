@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <math.h>
 #include <fstream>
+#include <string>
 
 class ProductItem {
 public:
