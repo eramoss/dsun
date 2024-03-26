@@ -54,7 +54,7 @@ public:
 
 class Products {
 public:
-  Products() = default;
+  Products() : total_price(0), storage() {};
   Products(dsun::LinkedList<ProductItem> storage) : storage(storage), total_price(0) {}
 
   double get_total_price() {
@@ -135,6 +135,10 @@ int main() {
 
 
     if (option == 1) {
+      if (shop.storage.len() == 0) {
+        std::cout << "No products available" << std::endl;
+        continue;
+      }
       shop.print_products();
       int id;
       std::cout << "Enter product ID: ";
@@ -143,6 +147,10 @@ int main() {
       costumer_cart.add_product(item);
     }
     else if (option == 2) {
+      if (costumer_cart.storage.len() == 0) {
+        std::cout << "No products in cart" << std::endl;
+        continue;
+      }
       costumer_cart.print_products();
       int id;
       std::cout << "Enter product ID: ";
@@ -173,12 +181,16 @@ int main() {
         std::cout << "Enter product ID: ";
         std::cin >> id;
         std::cout << "Enter product name: ";
-        getline(std::cin >> std::ws, name); // to ignore the newline character (https://stackoverflow.com/a/20728910/1092820
+        getline(std::cin >> std::ws, name);
         std::cout << "Enter product price: ";
         std::cin >> price;
         shop.add_product(ProductItem(id, name, price));
       }
       else if (admin_option == 2) {
+        if (shop.storage.len() == 0) {
+          std::cout << "No products available" << std::endl;
+          continue;
+        }
         shop.print_products();
         int id;
         std::cout << "Enter product ID: ";
