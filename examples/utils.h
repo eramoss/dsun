@@ -3,29 +3,29 @@
 #define LIST_FILE "build/list.bin"
 
 template<class T>
-uint8_t serialize_list_on_disk(dsun::LinkedList<T> list, const std::string& file_name = LIST_FILE) {
-  auto file = std::fstream(file_name, std::ios::out | std::ios::binary);
+uint8_t serialize_list_on_disk(const dsun::LinkedList<T>& list, const std::string& file_name = LIST_FILE) {
+  std::ofstream file(file_name, std::ios::out | std::ios::binary);
   if (!file.is_open()) {
     return 1;
   }
-  for (auto it = list.begin(); it != list.end(); ++it) {
-    file.write(reinterpret_cast<const char*>(&(it.get_mut())), sizeof(T));
+  for (const auto& item : list) {
+    item.serialize(file);
   }
-  list.clean();
   file.close();
   return 0;
 }
 
-
 template<class T>
 dsun::LinkedList<T> deserialize_list_from_disk(const std::string& file_name = LIST_FILE) {
-  auto list = dsun::LinkedList<T>();
+  dsun::LinkedList<T> list;
   std::ifstream file(file_name, std::ios::in | std::ios::binary);
   if (!file.is_open()) {
-    throw std::runtime_error("Could not open file: <" + std::string(file_name) + "> for deserialize the list.");
+    throw std::runtime_error("Could not open file for deserialization.");
   }
-  T item;
-  while (file.read(reinterpret_cast<char*>(&item), sizeof(T))) {
+  while (true) {
+    T item;
+    if (!item.deserialize(file))
+      break;
     list.push_back(item);
   }
   file.close();
