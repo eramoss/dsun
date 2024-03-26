@@ -16,13 +16,7 @@ namespace dsun {
     struct Node {
       T data;
       std::optional<std::shared_ptr<Node>> next;
-#ifdef DEBUG
-      ~Node() {
-        if (std::getenv("DEBUG_CLEAN") && std::string(std::getenv("DEBUG_CLEAN")) == "true") {
-          std::cout << "Deleting Node with data: " << data << std::endl;
-        }
-      }
-#endif
+
     };
     using node_ptr_opt = std::optional<std::shared_ptr<Node>>;
 

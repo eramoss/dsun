@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 
-class ProductItem {
+class ProductItem : public Serializable {
 public:
   ProductItem() = default;
   ProductItem(int id, std::string name, double price) : id(id), name(name), price(price) {}
@@ -15,7 +15,7 @@ public:
     os << "ID: " << item.id << ", Name: " << item.name << ", Price: " << item.price;
     return os;
   }
-  void serialize(std::ofstream& file) const {
+  void serialize(std::ostream& file) const override {
     file.write(reinterpret_cast<const char*>(&id), sizeof(int));
 
     int nameLength = name.length();
@@ -24,7 +24,7 @@ public:
     file.write(reinterpret_cast<const char*>(&price), sizeof(double));
   }
 
-  bool deserialize(std::ifstream& file) {
+  bool deserialize(std::istream& file) override {
     if (!file.read(reinterpret_cast<char*>(&id), sizeof(int)))
       return false;
 

@@ -1,9 +1,19 @@
-#include "dsun.h"
 #include <fstream>
-#define LIST_FILE "build/list.bin"
+#include <stdexcept>
+#include <type_traits>
+#include "dsun.h" 
+
+#define LIST_FILE "list.bin"
+
+class Serializable {
+public:
+  virtual void serialize(std::ostream&) const = 0;
+  virtual bool deserialize(std::istream&) = 0;
+};
 
 template<class T>
-uint8_t serialize_list_on_disk(const dsun::LinkedList<T>& list, const std::string& file_name = LIST_FILE) {
+typename std::enable_if<std::is_base_of<Serializable, T>::value, uint8_t>::type
+serialize_list_on_disk(const dsun::LinkedList<T>& list, const std::string& file_name = LIST_FILE) {
   std::ofstream file(file_name, std::ios::out | std::ios::binary);
   if (!file.is_open()) {
     return 1;
@@ -16,7 +26,8 @@ uint8_t serialize_list_on_disk(const dsun::LinkedList<T>& list, const std::strin
 }
 
 template<class T>
-dsun::LinkedList<T> deserialize_list_from_disk(const std::string& file_name = LIST_FILE) {
+typename std::enable_if<std::is_base_of<Serializable, T>::value, dsun::LinkedList<T>>::type
+deserialize_list_from_disk(const std::string& file_name = LIST_FILE) {
   dsun::LinkedList<T> list;
   std::ifstream file(file_name, std::ios::in | std::ios::binary);
   if (!file.is_open()) {
