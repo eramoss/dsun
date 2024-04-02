@@ -157,10 +157,12 @@ int main() {
       costumer_cart.print_products();
     }
     else if (option == 4) {
-      costumer_cart.storage.map_mut([](ProductItem& item) {
-        item.price *= 0.9;
-        std::cout << "ID: " << item.id << ", Name: " << item.name << ", Price: " << item.price << std::endl;
-        });
+      if (costumer_cart.get_total_price() >= 500) {
+        costumer_cart.storage.map_mut([](ProductItem& item) {
+          item.price *= 0.9;
+          std::cout << "ID: " << item.id << ", Name: " << item.name << ", Price: " << item.price << std::endl;
+          });
+      }
       std::cout << "Total price: " << costumer_cart.get_total_price() << std::endl;
       costumer_cart.clean();
       break;
