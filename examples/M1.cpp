@@ -62,7 +62,7 @@ public:
     storage.map_mut([&total_price](const ProductItem& item) {
       total_price += item.price;
       });
-
+    return total_price;
   }
 
   void add_product(ProductItem item) {
