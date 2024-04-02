@@ -54,22 +54,24 @@ public:
 
 class Products {
 public:
-  Products() : total_price(0), storage() {};
-  Products(dsun::LinkedList<ProductItem> storage) : storage(storage), total_price(0) {}
+  Products() : storage() {};
+  Products(dsun::LinkedList<ProductItem> storage) : storage(storage) {}
 
   double get_total_price() {
-    return total_price;
+    double total_price;
+    storage.map_mut([&total_price](const ProductItem& item) {
+      total_price += item.price;
+      });
+
   }
 
   void add_product(ProductItem item) {
     storage.push_back(item);
-    total_price += item.price;
   }
 
   void remove_product(int id) {
     for (auto it = storage.begin(); it != storage.end(); ++it) {
       if (it.get_mut().id == id) {
-        total_price -= it.get_mut().price;
         storage.remove(*it);
         break;
       }
@@ -93,7 +95,6 @@ public:
 
   void clean() {
     storage.clean();
-    total_price = 0;
   }
 
   void serialize() {
@@ -104,16 +105,11 @@ public:
     if (std::ifstream(LIST_FILE).good()) {
       storage = deserialize_list_from_disk<ProductItem>();
       std::cout << storage.len() << std::endl;
-      total_price = 0;
-      for (auto it = storage.begin(); it != storage.end(); ++it) {
-        total_price += (*it).price;
-      }
     }
   }
 
   dsun::LinkedList<ProductItem> storage;
 private:
-  double total_price;
 };
 
 
@@ -161,6 +157,10 @@ int main() {
       costumer_cart.print_products();
     }
     else if (option == 4) {
+      costumer_cart.storage.map_mut([](ProductItem& item) {
+        item.price *= 0.9;
+        std::cout << "ID: " << item.id << ", Name: " << item.name << ", Price: " << item.price << std::endl;
+        });
       std::cout << "Total price: " << costumer_cart.get_total_price() << std::endl;
       costumer_cart.clean();
       break;
