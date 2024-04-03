@@ -3,9 +3,9 @@
 #include <string>
 
 
-class HashTableTest : public ::testing::Test {
+class HashmapTest : public ::testing::Test {
 protected:
-  dsun::HashMap<int, std::string> hash_table;
+  dsun::HashMap<int, std::string> hash_map;
 };
 
 TEST(HashTest, equlityHash) {
@@ -16,35 +16,35 @@ TEST(HashTest, equlityHash) {
   EXPECT_FALSE(hash(1) == hash(2));
 }
 
-TEST_F(HashTableTest, InsertTest) {
-  hash_table.insert(1, "One");
-  hash_table.insert(2, "Two");
-  hash_table.insert(3, "Three");
+TEST_F(HashmapTest, InsertTest) {
+  hash_map.insert(1, "One");
+  hash_map.insert(2, "Two");
+  hash_map.insert(3, "Three");
 
-  EXPECT_EQ(hash_table.get(1).value(), "One");
-  EXPECT_EQ(hash_table.get(2).value(), "Two");
-  EXPECT_EQ(hash_table.get(3).value(), "Three");
+  EXPECT_EQ(hash_map.get(1).value(), "One");
+  EXPECT_EQ(hash_map.get(2).value(), "Two");
+  EXPECT_EQ(hash_map.get(3).value(), "Three");
 }
 
-TEST_F(HashTableTest, GetTest) {
-  hash_table.insert(1, "One");
-  hash_table.insert(2, "Two");
-  hash_table.insert(3, "Three");
+TEST_F(HashmapTest, GetTest) {
+  hash_map.insert(1, "One");
+  hash_map.insert(2, "Two");
+  hash_map.insert(3, "Three");
 
-  EXPECT_EQ(hash_table.get(1).value(), "One");
-  EXPECT_EQ(hash_table.get(2).value(), "Two");
-  EXPECT_EQ(hash_table.get(3).value(), "Three");
+  EXPECT_EQ(hash_map.get(1).value(), "One");
+  EXPECT_EQ(hash_map.get(2).value(), "Two");
+  EXPECT_EQ(hash_map.get(3).value(), "Three");
 
-  EXPECT_FALSE(hash_table.get(4).has_value());
+  EXPECT_FALSE(hash_map.get(4).has_value());
 }
 
-TEST_F(HashTableTest, GetMutTest) {
-  hash_table.insert(1, "One");
-  hash_table.insert(2, "Two");
-  hash_table.insert(3, "Three");
+TEST_F(HashmapTest, GetMutTest) {
+  hash_map.insert(1, "One");
+  hash_map.insert(2, "Two");
+  hash_map.insert(3, "Three");
 
-  auto one = hash_table.get_mut(1).value();
+  auto one = hash_map.get_mut(1).value();
   *one = std::string("OneOne");
-  EXPECT_EQ(hash_table.get(1).value(), "OneOne");
+  EXPECT_EQ(hash_map.get(1).value(), "OneOne");
 
 }
