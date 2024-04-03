@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include "dsun.h"
+#include <string>
+
 
 class HashTableTest : public ::testing::Test {
 protected:
@@ -34,4 +36,15 @@ TEST_F(HashTableTest, GetTest) {
   EXPECT_EQ(hash_table.get(3).value(), "Three");
 
   EXPECT_FALSE(hash_table.get(4).has_value());
+}
+
+TEST_F(HashTableTest, GetMutTest) {
+  hash_table.insert(1, "One");
+  hash_table.insert(2, "Two");
+  hash_table.insert(3, "Three");
+
+  auto one = hash_table.get_mut(1).value();
+  *one = std::string("OneOne");
+  EXPECT_EQ(hash_table.get(1).value(), "OneOne");
+
 }

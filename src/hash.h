@@ -82,6 +82,21 @@ struct hash<class_name> { \
       return std::nullopt;
     }
 
+    std::optional<T*> get_mut(const K& key) {
+      std::size_t index = hash(key);
+      if (table.get(index).has_value() == false) {
+        return std::nullopt;
+      }
+      Node* node = table.get(index).value();
+      while (node != nullptr) {
+        if (node->key == key) {
+          return &node->value;
+        }
+        node = node->next;
+      }
+      return std::nullopt;
+    }
+
 
   };
 }
