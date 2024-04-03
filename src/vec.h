@@ -51,6 +51,14 @@ namespace dsun {
         std::optional<T*> get_mut(uint32_t index);
         std::optional<T> remove(uint32_t index);
         void push(T value);
+        void insert(uint32_t index, T value) {
+            if (index < cap) {
+                ptr.get()[index] = value;
+            }
+            else {
+                return;
+            }
+        }
 
         /*
           Getters
