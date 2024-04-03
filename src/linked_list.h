@@ -199,10 +199,10 @@ namespace dsun {
         index_++;
         return *this;
       }
-      bool operator!=(const Iterator& other) {
+      bool operator!=(const Iterator& other) const {
         return current != other.current;
       }
-      bool operator==(const Iterator& other) {
+      bool operator==(const Iterator& other) const {
         return current == other.current;
       }
       size_t index() {
