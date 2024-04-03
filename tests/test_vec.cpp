@@ -176,7 +176,7 @@ TEST_F(VecTest, MapVec) {
 TEST_F(VecTest, MapMutVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
   auto vec = dsun::Vec<int>::from_slice(arr);
-  vec.map_mut([](int* x) {  *x = *x + 1; });
+  vec.map_mut([](int& x) {  x = x + 1; });
 
   EXPECT_EQ(vec.get(4).value(), 6);
   EXPECT_EQ(vec.get(3).value(), 5);

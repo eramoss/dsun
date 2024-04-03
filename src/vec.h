@@ -143,8 +143,8 @@ namespace dsun {
         /*
           Higher order functions
         */
-        Vec<T> map(std::function<T(T)> f);
-        Vec<T>* map_mut(std::function<void(T*)> f);
+        Vec<T> map(std::function<T(const T&)> f);
+        Vec<T> map_mut(std::function<void(T&)> f);
         Vec<T> filter(std::function<bool(T)> f);
     };
 
@@ -212,20 +212,20 @@ namespace dsun {
     }
 
     template <class T>
-    Vec<T> Vec<T>::map(std::function<T(T)> f) {
+    Vec<T> Vec<T>::map(std::function<T(const T&)> f) {
         Vec<T> new_vec;
-        for (uint32_t i = 0; i < length; i++) {
-            new_vec.push(f(this->get(i).value()));
+        for (auto it = this->begin(); it.has_next(); ++it) {
+            new_vec.push(f(it.get()));
         }
         return new_vec;
     }
 
     template <class T>
-    Vec<T>* Vec<T>::map_mut(std::function<void(T*)> f) {
-        for (uint32_t i = 0; i < length; i++) {
-            f(this->get_mut(i).value());
+    Vec<T> Vec<T>::map_mut(std::function<void(T&)> f) {
+        for (auto it = this->begin(); it.has_next(); ++it) {
+            f(it.get_mut());
         }
-        return this;
+        return *this;
     }
 
     template <class T>
