@@ -4,8 +4,8 @@ data structures lib
 
 ## Build
 
-Require `Cmake` tools  https://cmake.org/
-You can also run as a [python script](#python-scripts)
+Require `Cmake` tools  https://cmake.org/ and C++20 (recommend ninja builder).
+You can also run as a [python script](#python-scripts).
 
 To build inside `build/` you can run:
 ``` sh
