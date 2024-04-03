@@ -196,3 +196,56 @@ TEST_F(VecTest, FilterVec) {
 
 
 
+class IteratorTest : public testing::Test {
+protected:
+  dsun::Vec<int> vec;
+
+  void SetUp() override {
+    vec.push(1);
+    vec.push(2);
+    vec.push(3);
+  }
+
+};
+
+TEST_F(IteratorTest, EqualityOperator) {
+  dsun::Vec<int> vec_2 = vec;
+  for (auto it = vec.begin(); it != vec.end(); ++it) {
+    auto it_2 = vec_2.begin();
+    EXPECT_EQ(it, it_2);
+    ++it_2;
+  }
+}
+
+TEST_F(IteratorTest, InequalityOperator) {
+  dsun::Vec<int> vec_2 = vec;
+  for (auto it = vec.begin(); it != vec.end(); ++it) {
+    auto it_2 = vec_2.begin();
+    ASSERT_EQ(it, it_2);
+    ++it_2;
+  }
+}
+
+TEST_F(IteratorTest, PreIncrementOperator) {
+  auto it = vec.begin();
+  EXPECT_EQ(it.get_index(), 0);
+  ++it;
+  EXPECT_EQ(it.get_index(), 1);
+}
+
+TEST_F(IteratorTest, GetMethod) {
+  auto it = vec.begin();
+  int value = it.get();
+  EXPECT_EQ(value, 1);
+  ++it;
+  value = it.get();
+  EXPECT_EQ(value, 2);
+}
+
+TEST_F(IteratorTest, GetMutMethod) {
+  auto it = vec.begin();
+  it.get_mut() = 10;
+  EXPECT_EQ(it.get(), 10);
+  it.get_mut() = 2;
+  EXPECT_EQ(it.get(), 2);
+}

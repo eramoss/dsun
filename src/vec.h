@@ -96,6 +96,50 @@ namespace dsun {
             return cap;
         }
 
+        class Iterator {
+        private:
+            Vec<T>& vec;
+            uint32_t index;
+        public:
+            Iterator(Vec<T>& v, uint32_t i) : vec(v), index(i) {}
+
+            bool operator==(const Iterator& other) const {
+                return vec[index].value() == other.vec[index].value();
+            }
+
+            bool operator!=(const Iterator& other) const {
+                return vec[index].value() != other.vec[index].value();
+            }
+
+            Iterator& operator++() {
+                index++;
+                return *this;
+            }
+
+            T get() const {
+                return vec.get(index).value();
+            }
+            T& get_mut() {
+                return *vec.get_mut(index).value();
+            }
+
+            uint32_t get_index() const {
+                return index;
+            }
+
+            bool has_next() {
+                return index < vec.len();
+            }
+        };
+
+        Iterator begin() {
+            return Iterator(*this, 0);
+        }
+
+        Iterator end() {
+            return Iterator(*this, length);
+        }
+
         /*
           Higher order functions
         */
