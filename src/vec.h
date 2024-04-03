@@ -52,7 +52,7 @@ namespace dsun {
         std::optional<T> remove(uint32_t index);
         void push(T value);
         void insert(uint32_t index, T value) {
-            auto new_vec = Vec<T>::with_capacity(std::max(cap * 2, index + 1));
+            auto new_vec = Vec<T>::with_capacity(std::max(cap * 2, index));
             for (uint32_t i = 0; i < index; i++) {
                 new_vec.push(this->get(i).value_or(T()));
             }
