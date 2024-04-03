@@ -57,7 +57,7 @@ struct hash<class_name> { \
       std::size_t index = hash(key);
       Node* new_node = new Node(key, value, nullptr);
       if (table.get(index).has_value() == false) {
-        table.insert(index, new_node);
+        table.as_slice()[index] = new_node;
         return;
       }
       Node* node = table.get(index).value();

@@ -45,8 +45,11 @@ namespace dsun {
         static Vec<T> with_capacity(uint32_t capacity);
 
         /*
-          Primary methods
+            Primary methods
         */
+        std::unique_ptr<T[]>& as_slice() {
+            return ptr;
+        }
         std::optional<T> get(uint32_t index) const;
         std::optional<T*> get_mut(uint32_t index);
         std::optional<T> remove(uint32_t index);
