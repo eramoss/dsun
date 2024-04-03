@@ -81,6 +81,31 @@ TEST_F(VecTest, PushVec) {
   EXPECT_EQ(vec.get(5).value(), 6);
 }
 
+TEST_F(VecTest, InsertVecEmpty) {
+  const int init_cap = 10;
+  auto vec = dsun::Vec<int>::with_capacity(init_cap);
+  vec.insert(12, 1);
+
+  EXPECT_EQ(vec.get(12).value(), 1);
+  EXPECT_EQ(vec.len(), 13);
+  EXPECT_EQ(vec.capacity(), init_cap * 2);
+}
+
+TEST_F(VecTest, InsertVec) {
+  int arr[5] = { 1, 2, 3, 4, 5 };
+  auto vec = dsun::Vec<int>::from_slice(arr);
+  vec.insert(2, 10);
+
+
+  EXPECT_EQ(vec.get(0).value(), 1);
+  EXPECT_EQ(vec.get(1).value(), 2);
+  EXPECT_EQ(vec.get(2).value(), 10);
+  EXPECT_EQ(vec.get(3).value(), 3);
+  EXPECT_EQ(vec.get(4).value(), 4);
+  EXPECT_EQ(vec.get(5).value(), 5);
+  EXPECT_EQ(vec.len(), 6);
+}
+
 TEST_F(VecTest, PushAndGrowVec) {
   auto vec = dsun::Vec<int>::from_list({ 1 });
   EXPECT_EQ(vec.capacity(), 2);
