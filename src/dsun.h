@@ -3,5 +3,6 @@
 
 #include "linked_list.h"
 #include "vec.h"
+#include "hash.h"
 
 #endif // DSUN_H
