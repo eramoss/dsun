@@ -4,7 +4,7 @@
 #include <concepts>
 #include <functional>
 #include "vec.h"
-
+#include <variant>
 
 
 namespace dsun {
