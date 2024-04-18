@@ -5,6 +5,8 @@
 #include <functional>
 #include "vec.h"
 
+
+
 namespace dsun {
   template <typename T>
   concept Hashable = requires(T a) {
@@ -34,6 +36,9 @@ struct hash<class_name> { \
     } \
 }; \
 }
+
+}
+namespace dsun {
   template<typename Hashable, typename V>
   class HashMap {
   private:
@@ -137,26 +142,49 @@ struct hash<class_name> { \
       return false;
     }
 
+    class Entry {
+      struct Occupied {
+        K key;
+        T value;
+        HashMap<K, T>* base;
+        Occupied(K key, T value, HashMap<K, T>* base) : key(key), value(value), base(base) {}
+      };
+      struct Vacant {
+        K key;
+        HashMap<K, T>* base;
+        Vacant(K key, HashMap<K, T>* base) : key(key), base(base) {}
+      };
 
+      std::variant<Occupied, Vacant> entry;
+    public:
+      Entry(K key, T value, HashMap<K, T>* base) : entry(Occupied(key, value, base)) {}
+      Entry(K key, HashMap<K, T>* base) : entry(Vacant(key, base)) {}
+
+      T or_insert(T value) {
+        if (std::holds_alternative<Occupied>(entry)) {
+          return std::get<Occupied>(entry).value;
+        }
+        Vacant vacant = std::get<Vacant>(entry);
+        vacant.base->insert(vacant.key, value);
+        return value;
+      }
+
+      Entry& and_modify(std::function<void(T&)> f) {
+        if (std::holds_alternative<Occupied>(entry)) {
+          f(std::get<Occupied>(entry).value);
+        }
+        return *this;
+      }
+    };
+
+    Entry entry(K key) {
+      std::optional<T> entry = this->get(key);
+      if (entry.has_value()) {
+        return Entry(key, entry.value(), this);
+      }
+      return Entry(key, this);
+    }
   };
 }
-
-template <typename Hashable, typename V>
-class Entry {
-  struct Occupied {
-    Hashable key;
-    V value;
-    Occupied(Hashable key, V value) : key(key), value(value) {}
-  };
-  struct Vacant {
-    Hashable key;
-    Vacant(Hashable key) : key(key) {}
-  };
-
-  std::variant<Occupied, Vacant> entry;
-public:
-};
-
-
 
 #endif // DSUN_HASH_H

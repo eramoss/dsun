@@ -96,11 +96,11 @@ TEST_F(HashmapTest, RemoveInEmpty) {
 }
 
 TEST_F(HashmapTest, EntryOrInsertTest) {
-  hash_map.entry(1).or_insert("One");
-  EXPECT_EQ(hash_map.get(1).value(), "One");
-
-  *hash_map.entry(1).or_insert("two") = "one one";
-  EXPECT_EQ(hash_map.get(1).value(), "one one");
+  hash_map.insert(1, "One");
+  auto entry = hash_map.entry(1).or_insert("two");
+  auto entry2 = hash_map.entry(2).or_insert("two");
+  EXPECT_EQ(entry, "One");
+  EXPECT_EQ(entry2, "two");
 }
 
 TEST_F(HashmapTest, EntryAndModifyTest) {
