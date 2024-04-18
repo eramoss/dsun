@@ -67,6 +67,31 @@ struct hash<class_name> { \
       node->next = new_node;
     }
 
+    std::optional<T> remove(const K& key) {
+      std::size_t index = hash(key);
+      if (table.get(index).has_value() == false) {
+        return std::nullopt;
+      }
+      Node* node = table.get(index).value();
+      if (node->key == key) {
+        table.as_slice()[index] = node->next;
+        T value = node->value;
+        delete node;
+        return value;
+      }
+      while (node->next != nullptr) {
+        if (node->next->key == key) {
+          Node* next = node->next;
+          node->next = next->next;
+          T value = next->value;
+          delete next;
+          return value;
+        }
+        node = node->next;
+      }
+      return std::nullopt;
+    }
+
     std::optional<T> get(const K& key) {
       std::size_t index = hash(key);
       if (table.get(index).has_value() == false) {
@@ -97,9 +122,40 @@ struct hash<class_name> { \
       return std::nullopt;
     }
 
+    bool contains_key(const K& key) {
+      std::size_t index = hash(key);
+      if (table.get(index).has_value() == false) {
+        return false;
+      }
+      Node* node = table.get(index).value();
+      while (node != nullptr) {
+        if (node->key == key) {
+          return true;
+        }
+        node = node->next;
+      }
+      return false;
+    }
+
 
   };
 }
+
+template <typename Hashable, typename V>
+class Entry {
+  struct Occupied {
+    Hashable key;
+    V value;
+    Occupied(Hashable key, V value) : key(key), value(value) {}
+  };
+  struct Vacant {
+    Hashable key;
+    Vacant(Hashable key) : key(key) {}
+  };
+
+  std::variant<Occupied, Vacant> entry;
+public:
+};
 
 
 
