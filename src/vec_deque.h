@@ -13,10 +13,10 @@ public:
   VecDeque(const VecDeque<T>& other) : buf(other.buf), head(other.head), len(other.len) {}
 
   void push_back(T value) {
-    if (len == buf.len()) {
-      auto new_buf = dsun::Vec<T>::with_capacity(std::max(1u, buf.len() * 2));
+    if (len == buf.capacity()) {
+      auto new_buf = dsun::Vec<T>::with_capacity(std::max(1u, buf.capacity() * 2));
       for (uint32_t i = 0; i < len; ++i) {
-        new_buf.push(buf.get((head + i) % buf.len()).value());
+        new_buf.push(buf.get((head + i) % buf.capacity()).value());
       }
       buf = std::move(new_buf);
       head = 0;
@@ -30,19 +30,19 @@ public:
       return std::nullopt;
     }
     len -= 1;
-    return buf.get((head + len) % buf.len());
+    return buf.get((head + len) % buf.capacity());
   }
 
   void push_front(T value) {
-    if (len == buf.len()) {
-      auto new_buf = dsun::Vec<T>::with_capacity(std::max(1u, buf.len() * 2));
+    if (len == buf.capacity()) {
+      auto new_buf = dsun::Vec<T>::with_capacity(std::max(1u, buf.capacity() * 2));
       for (uint32_t i = 0; i < len; ++i) {
-        new_buf.push(buf.get((head + i) % buf.len()).value());
+        new_buf.push(buf.get((head + i) % buf.capacity()).value());
       }
       buf = std::move(new_buf);
       head = 0;
     }
-    head = (head - 1) % buf.len();
+    head = (head - 1) % buf.capacity();
     buf.insert(head, value);
     len += 1;
   }
@@ -53,7 +53,7 @@ public:
     }
     len -= 1;
     auto value = buf.get(head);
-    head = (head + 1) % buf.len();
+    head = (head + 1) % buf.capacity();
     return value;
   }
 
@@ -61,8 +61,16 @@ public:
     if (index >= len) {
       throw std::out_of_range("Index out of range");
     }
-    return buf[(head + index) % buf.len()];
+    return buf[(head + index) % buf.capacity()];
   }
+
+  [[nodiscard]] uint32_t size() const {
+    return len;
+  }
+  [[nodiscard]] uint32_t capacity() const {
+    return buf.capacity();
+  }
+
 };
 
 
