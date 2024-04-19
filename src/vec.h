@@ -78,8 +78,11 @@ namespace dsun {
         std::optional<T> first() const {
             return this->get(0);
         }
-        std::optional<T> operator[](uint32_t index) const {
-            return this->get(index);
+        T& operator[](uint32_t index) const {
+            if (index >= length) {
+                throw std::out_of_range("Index out of bounds");
+            }
+            return this->ptr.get()[index];
         }
 
         Vec<T> operator=(const Vec<T>& other);
@@ -118,11 +121,11 @@ namespace dsun {
             Iterator(Vec<T>& v, uint32_t i) : vec(v), index(i) {}
 
             bool operator==(const Iterator& other) const {
-                return vec[index].value() == other.vec[index].value();
+                return vec[index] == other.vec[index];
             }
 
             bool operator!=(const Iterator& other) const {
-                return vec[index].value() != other.vec[index].value();
+                return vec[index] != other.vec[index];
             }
 
             Iterator& operator++() {
