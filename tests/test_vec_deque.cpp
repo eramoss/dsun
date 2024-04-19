@@ -46,3 +46,18 @@ TEST(VecDequeTest, OperatorSquareBracketsOutOfRange) {
   deque.push_back(1);
   EXPECT_THROW(deque[1], std::out_of_range);
 }
+
+TEST(VecDequeTest, MakeContiguous) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  deque.push_back(2);
+  deque.push_back(3);
+  deque.pop_front();
+  deque.push_back(4);
+  // At this point, the internal buffer might look like this: [_, 2, 3, 4]
+  // After calling make_contiguous, it should look like this: [2, 3, 4, _]
+  deque.make_contiguous();
+  EXPECT_EQ(deque.get_in_internal_buf(0), 2);
+  EXPECT_EQ(deque.get_in_internal_buf(1), 3);
+  EXPECT_EQ(deque.get_in_internal_buf(2), 4);
+}

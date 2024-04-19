@@ -64,13 +64,24 @@ public:
     return buf[(head + index) % buf.capacity()];
   }
 
+  T& get_in_internal_buf(uint32_t index) {
+    return buf[index];
+  }
+
   [[nodiscard]] uint32_t size() const {
     return len;
   }
   [[nodiscard]] uint32_t capacity() const {
     return buf.capacity();
   }
-
+  void make_contiguous() {
+    auto new_buf = dsun::Vec<T>::with_capacity(len);
+    for (uint32_t i = 0; i < len; ++i) {
+      new_buf.push(buf.get((head + i) % buf.capacity()).value());
+    }
+    buf = std::move(new_buf);
+    head = 0;
+  }
 };
 
 
