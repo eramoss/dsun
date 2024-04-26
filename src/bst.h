@@ -92,44 +92,34 @@ namespace dsun {
       if (is_empty()) {
         return std::nullopt;
       }
-      auto current = &root;
-      while (current->has_value() && current->value()->left.has_value()) {
-        current = &current->value()->left;
-      }
-      return current->value()->value;
+      auto node = traverse_extreme(true, &root);
+      std::optional<T> result = node->value()->value;
+      return result;
     }
     std::optional<T> extract_min() {
       if (is_empty()) {
         return std::nullopt;
       }
-      auto current = &root;
-      while (current->has_value() && current->value()->left.has_value()) {
-        current = &current->value()->left;
-      }
-      T result = current->value()->value;
-      *current = std::nullopt;
+      auto node = traverse_extreme(true, &root);
+      std::optional<T> result = node->value()->value;
+      *node = std::nullopt;
       return result;
     }
     std::optional<T> max() {
       if (is_empty()) {
         return std::nullopt;
       }
-      auto current = &root;
-      while (current->has_value() && current->value()->right.has_value()) {
-        current = &current->value()->right;
-      }
-      return current->value()->value;
+      auto node = traverse_extreme(false, &root);
+      std::optional<T> result = node->value()->value;
+      return result;
     }
     std::optional<T> extract_max() {
       if (is_empty()) {
         return std::nullopt;
       }
-      auto current = &root;
-      while (current->has_value() && current->value()->right.has_value()) {
-        current = &current->value()->right;
-      }
-      T result = current->value()->value;
-      *current = std::nullopt;
+      auto node = traverse_extreme(false, &root);
+      std::optional<T> result = node->value()->value;
+      *node = std::nullopt;
       return result;
     }
     /*Helpers*/
@@ -167,6 +157,18 @@ namespace dsun {
         }
       }
       f(current);
+    }
+
+    node_ptr_opt* traverse_extreme(bool left, node_ptr_opt* current) {
+      if (is_empty()) {
+        return nullptr;
+      }
+      auto next = left ? &current->value()->left : &current->value()->right;
+      while (next->has_value()) {
+        current = next;
+        next = left ? &current->value()->left : &current->value()->right;
+      }
+      return current;
     }
 
     int strong_ord_to_int(std::strong_ordering ord) const {
