@@ -88,7 +88,7 @@ namespace dsun {
         }
         T& operator[](uint32_t index) const {
             if (index >= length) {
-                throw std::out_of_range("Index out of bounds");
+                throw std::out_of_range(std::format("Index out of bounds: {}", index));
             }
             return this->ptr.get()[index];
         }
