@@ -62,68 +62,67 @@ namespace dsun {
         root = std::make_shared<Node>(value);
         return;
       }
-      node_ptr_opt* current = &root;
-      while (current->has_value()) {
-        int cmp = strong_ord_to_int(current->value()->value <=> value);
-        switch (cmp) {
-          case -1:
-            current = &current->value()->right;
-            break;
-          case 1:
-            current = &current->value()->left;
-            break;
-          case 0:
-            if (allow_duplicates) {
-              current = &current->value()->right;
-              break;
-            }
-            else {
-              return;
-            }
+      traverse(&root, value, [&](node_ptr_opt* current) {
+        if (!allow_duplicates && current->has_value()) {
+          return;
         }
-      }
-      *current = std::make_shared<Node>(value);
+        *current = std::make_shared<Node>(value);
+        });
     }
 
     bool contains(const T& value) {
-      node_ptr_opt* current = &root;
-      while (current->has_value()) {
-        int cmp = strong_ord_to_int(current->value()->value <=> value);
-        switch (cmp) {
-          case -1:
-            current = &current->value()->right;
-            break;
-          case 1:
-            current = &current->value()->left;
-            break;
-          case 0:
-            return true;
-        }
-      }
-      return false;
+      bool found = false;
+      traverse(&root, value, [&](node_ptr_opt* current) {
+        found = current->has_value();
+        });
+      return found;
     }
 
     std::optional<T> find(const T& value) {
-      node_ptr_opt* current = &root;
-      while (current->has_value()) {
-        int cmp = strong_ord_to_int(current->value()->value <=> value);
-        switch (cmp) {
-          case -1:
-            current = &current->value()->right;
-            break;
-          case 1:
-            current = &current->value()->left;
-            break;
-          case 0:
-            return current->value()->value;
+      std::optional<T> result;
+      traverse(&root, value, [&](node_ptr_opt* current) {
+        if (current->has_value()) {
+          result = current->value()->value;
         }
-      }
-      return std::nullopt;
+        });
+      return result;
     }
 
     /*Helpers*/
     bool is_empty() const {
       return !root.has_value();
+    }
+
+
+    ///  Traverse the tree and apply the function f to the node that contains the value.
+    ///  If the value is not found, apply the function f to the node where the value should be inserted.
+    ///
+    ///  # Example
+    ///  ```cpp
+    ///    bool found = false;
+    ///    traverse(&root, value, [&](node_ptr_opt* current) {
+    ///      found = current->has_value();
+    ///       });
+    ///     return found;
+    ///  ``` 
+    template<typename Func>
+    void traverse(node_ptr_opt* root, const T& value, Func f) {
+      node_ptr_opt* current = root;
+      while (current->has_value()) {
+        int cmp = strong_ord_to_int(current->value()->value <=> value);
+        switch (cmp) {
+          case -1:
+            current = &current->value()->right;
+            break;
+          case 1:
+            current = &current->value()->left;
+            break;
+          case 0:
+            f(current);
+            return;
+        }
+      }
+      f(current);
     }
 
     int strong_ord_to_int(std::strong_ordering ord) const {
