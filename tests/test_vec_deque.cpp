@@ -56,8 +56,17 @@ TEST(VecDequeTest, MakeContiguous) {
   deque.push_back(4);
   // At this point, the internal buffer might look like this: [_, 2, 3, 4]
   // After calling make_contiguous, it should look like this: [2, 3, 4, _]
-  deque.make_contiguous();
-  EXPECT_EQ(deque.get_in_internal_buf(0), 2);
-  EXPECT_EQ(deque.get_in_internal_buf(1), 3);
-  EXPECT_EQ(deque.get_in_internal_buf(2), 4);
+  auto slice = deque.make_contiguous();
+  EXPECT_EQ(slice[0], 2);
+  EXPECT_EQ(slice[1], 3);
+  EXPECT_EQ(slice[2], 4);
+}
+
+TEST(VecDequeTest, PushFrontInFullCap) {
+  VecDeque<int> deque = VecDeque<int>::with_capacity(3);
+  deque.push_back(1);
+  deque.push_back(2);
+  deque.push_back(3);
+  deque.push_front(4);
+  EXPECT_EQ(deque.pop_front(), 4);
 }

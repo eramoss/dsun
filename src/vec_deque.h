@@ -12,76 +12,144 @@ public:
   VecDeque() : head(0), len(0) {}
   VecDeque(const VecDeque<T>& other) : buf(other.buf), head(other.head), len(other.len) {}
 
+  static VecDeque<T> with_capacity(uint32_t capacity) {
+    VecDeque<T> deque;
+    deque.buf = dsun::Vec<T>::with_capacity(capacity);
+    return deque;
+  }
+
+
   void push_back(T value) {
-    if (len == buf.capacity()) {
-      auto new_buf = dsun::Vec<T>::with_capacity(std::max(1u, buf.capacity() * 2));
-      for (uint32_t i = 0; i < len; ++i) {
-        new_buf.push(buf.get((head + i) % buf.capacity()).value());
-      }
-      buf = std::move(new_buf);
-      head = 0;
+    if (is_full()) {
+      grow();
     }
-    buf.push(value);
-    len += 1;
+    buffer_write(to_physical_idx(len), value);
+    len++;
   }
 
   std::optional<T> pop_back() {
-    if (len == 0) {
+    if (is_empty()) {
       return std::nullopt;
     }
-    len -= 1;
-    return buf.get((head + len) % buf.capacity());
+    len--;
+    return buffer_read(to_physical_idx(len));
   }
 
+
   void push_front(T value) {
-    if (len == buf.capacity()) {
-      auto new_buf = dsun::Vec<T>::with_capacity(std::max(1u, buf.capacity() * 2));
-      for (uint32_t i = 0; i < len; ++i) {
-        new_buf.push(buf.get((head + i) % buf.capacity()).value());
-      }
-      buf = std::move(new_buf);
-      head = 0;
+    if (is_full()) {
+      grow();
     }
-    head = (head - 1) % buf.capacity();
-    buf.insert(head, value);
-    len += 1;
+    head = wrap_sub(head, 1);
+    buffer_write(head, value);
+    len++;
   }
 
   std::optional<T> pop_front() {
-    if (len == 0) {
+    if (is_empty()) {
       return std::nullopt;
     }
-    len -= 1;
-    auto value = buf.get(head);
-    head = (head + 1) % buf.capacity();
-    return value;
+    uint32_t old_head = head;
+    head = to_physical_idx(1);
+    len--;
+    return buffer_read(old_head);
   }
 
-  T& operator[](uint32_t index) {
-    if (index >= len) {
-      throw std::out_of_range("Index out of range");
+  T* make_contiguous() {
+    if (is_contiguous()) {
+      return buf.as_slice().get() + head;
     }
-    return buf[(head + index) % buf.capacity()];
+    auto new_buf = dsun::Vec<T>::with_capacity(capacity());
+    for (uint32_t i = 0; i < len; ++i) {
+      new_buf.push(buf.get(to_physical_idx(i)).value());
+    }
+    buf = std::move(new_buf);
+    head = 0;
+    return buf.as_slice().get();
   }
 
-  T& get_in_internal_buf(uint32_t index) {
-    return buf[index];
-  }
-
+  /*Getters*/
   [[nodiscard]] uint32_t size() const {
     return len;
   }
   [[nodiscard]] uint32_t capacity() const {
     return buf.capacity();
   }
-  void make_contiguous() {
-    auto new_buf = dsun::Vec<T>::with_capacity(len);
+  [[nodiscard]] bool is_empty() const {
+    return len == 0;
+  }
+  [[nodiscard]] bool is_full() const {
+    return len == buf.capacity();
+  }
+  [[nodiscard]] bool is_contiguous() const {
+    return head <= capacity() - size();
+  }
+  T operator[](uint32_t index) const {
+    if (index >= len) {
+      throw std::out_of_range("Index out of bounds");
+    }
+    return buf.get(to_physical_idx(index)).value();
+  }
+
+  std::optional<T> back() const {
+    if (is_empty()) {
+      return std::nullopt;
+    }
+    return buf.get(to_physical_idx(len - 1)).value();
+  }
+  std::optional<T> front() const {
+    if (is_empty()) {
+      return std::nullopt;
+    }
+    return buf.get(head).value();
+  }
+
+  /*Helpers*/
+  void grow() {
+    buffer_resize(capacity() == 0 ? 1 : capacity() * 2);
+  }
+
+  void buffer_write(uint32_t index, T value) {
+    buf.as_slice()[index] = value;
+  }
+
+  T buffer_read(uint32_t index) const {
+    return buf.get(index).value();
+  }
+
+  void buffer_resize(uint32_t new_capacity) {
+    auto new_buf = dsun::Vec<T>::with_capacity(new_capacity);
     for (uint32_t i = 0; i < len; ++i) {
-      new_buf.push(buf.get((head + i) % buf.capacity()).value());
+      new_buf.push(buf.get(to_physical_idx(i)).value());
     }
     buf = std::move(new_buf);
     head = 0;
   }
+
+  uint32_t wrap_index(uint32_t logical_idx, uint32_t cap) const {
+    assert((logical_idx == 0 && cap == 0)
+      || logical_idx < cap
+      || (logical_idx - cap) < cap);
+    if (logical_idx >= cap) {
+      return logical_idx - cap;
+    }
+    else {
+      return logical_idx;
+    }
+  }
+
+  uint32_t wrap_add(uint32_t index, uint32_t append) const {
+    return wrap_index(index + append, capacity());
+  }
+
+  uint32_t wrap_sub(uint32_t index, uint32_t sub) const {
+    return wrap_index(index - sub + capacity(), capacity());
+  }
+
+  uint32_t to_physical_idx(uint32_t index) const {
+    return wrap_add(head, index);
+  }
+
 };
 
 
