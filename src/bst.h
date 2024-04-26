@@ -62,7 +62,7 @@ namespace dsun {
         root = std::make_shared<Node>(value);
         return;
       }
-      traverse(&root, value, [&](node_ptr_opt* current) {
+      traverse_find(&root, value, [&](node_ptr_opt* current) {
         if (!allow_duplicates && current->has_value()) {
           return;
         }
@@ -72,7 +72,7 @@ namespace dsun {
 
     bool contains(const T& value) {
       bool found = false;
-      traverse(&root, value, [&](node_ptr_opt* current) {
+      traverse_find(&root, value, [&](node_ptr_opt* current) {
         found = current->has_value();
         });
       return found;
@@ -80,7 +80,7 @@ namespace dsun {
 
     std::optional<T> find(const T& value) {
       std::optional<T> result;
-      traverse(&root, value, [&](node_ptr_opt* current) {
+      traverse_find(&root, value, [&](node_ptr_opt* current) {
         if (current->has_value()) {
           result = current->value()->value;
         }
@@ -94,19 +94,19 @@ namespace dsun {
     }
 
 
-    ///  Traverse the tree and apply the function f to the node that contains the value.
+    ///  traverse find in the tree and apply the function f to the node that contains the value.
     ///  If the value is not found, apply the function f to the node where the value should be inserted.
     ///
     ///  # Example
     ///  ```cpp
     ///    bool found = false;
-    ///    traverse(&root, value, [&](node_ptr_opt* current) {
+    ///    traverse_find(&root, value, [&](node_ptr_opt* current) {
     ///      found = current->has_value();
     ///       });
     ///     return found;
     ///  ``` 
     template<typename Func>
-    void traverse(node_ptr_opt* root, const T& value, Func f) {
+    void traverse_find(node_ptr_opt* root, const T& value, Func f) {
       node_ptr_opt* current = root;
       while (current->has_value()) {
         int cmp = strong_ord_to_int(current->value()->value <=> value);
@@ -120,8 +120,11 @@ namespace dsun {
           case 0:
             f(current);
             return;
+            f(current);
+            return;
         }
       }
+      f(current);
       f(current);
     }
 
