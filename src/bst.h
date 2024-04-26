@@ -103,6 +103,24 @@ namespace dsun {
       return false;
     }
 
+    std::optional<T> find(const T& value) {
+      node_ptr_opt* current = &root;
+      while (current->has_value()) {
+        int cmp = strong_ord_to_int(current->value()->value <=> value);
+        switch (cmp) {
+          case -1:
+            current = &current->value()->right;
+            break;
+          case 1:
+            current = &current->value()->left;
+            break;
+          case 0:
+            return current->value()->value;
+        }
+      }
+      return std::nullopt;
+    }
+
     /*Helpers*/
     bool is_empty() const {
       return !root.has_value();

@@ -44,3 +44,28 @@ TEST(BSTTest, ContainsEmpty) {
   BST<int> bst;
   EXPECT_FALSE(bst.contains(5));
 }
+
+TEST(BSTTest, FindInTree) {
+  BST<int> bst;
+  bst.insert(5);
+  bst.insert(3);
+  bst.insert(7);
+  EXPECT_EQ(bst.find(5), std::optional<int>(5));
+  EXPECT_EQ(bst.find(3), std::optional<int>(3));
+  EXPECT_EQ(bst.find(7), std::optional<int>(7));
+}
+
+TEST(BSTTest, FindNotInTree) {
+  BST<int> bst;
+  bst.insert(5);
+  bst.insert(3);
+  bst.insert(7);
+  EXPECT_EQ(bst.find(4), std::nullopt);
+  EXPECT_EQ(bst.find(6), std::nullopt);
+  EXPECT_EQ(bst.find(8), std::nullopt);
+}
+
+TEST(BSTTest, FindInEmptyTree) {
+  BST<int> bst;
+  EXPECT_EQ(bst.find(5), std::nullopt);
+}
