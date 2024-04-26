@@ -1,5 +1,5 @@
-#ifndef DSUN_BST_H
-#define DSUN_BST_H
+#ifndef DSUN_BSTree_H
+#define DSUN_BSTree_H
 
 #include <memory>
 #include <optional>
@@ -25,7 +25,7 @@ namespace dsun {
   };
 
   template <Comparable T>
-  class BST {
+  class BSTree {
   private:
     struct Node {
       T value;
@@ -38,23 +38,23 @@ namespace dsun {
 
   public:
     /*Constructors*/
-    BST() : root(std::nullopt) {}
-    BST(const BST<T>& other) {
+    BSTree() : root(std::nullopt) {}
+    BSTree(const BSTree<T>& other) {
       root = other.root;
     }
-    static BST<T> from_slice(const T* data, size_t len) {
-      BST<T> bst;
+    static BSTree<T> from_slice(const T* data, size_t len) {
+      BSTree<T> BSTree;
       for (size_t i = 0; i < len; i++) {
-        bst.insert(data[i]);
+        BSTree.insert(data[i]);
       }
-      return bst;
+      return BSTree;
     }
-    static BST<T> from_list(const std::initializer_list<T> list) {
-      BST<T> bst;
+    static BSTree<T> from_list(const std::initializer_list<T> list) {
+      BSTree<T> BSTree;
       for (const auto& item : list) {
-        bst.insert(item);
+        BSTree.insert(item);
       }
-      return bst;
+      return BSTree;
     }
 
     void insert(const T& value, bool allow_duplicates = false) {
@@ -186,4 +186,4 @@ namespace dsun {
 }
 
 
-#endif // DSUN_BST_H
+#endif // DSUN_BSTree_H

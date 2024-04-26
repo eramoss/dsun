@@ -1,8 +1,9 @@
 #include "gtest/gtest.h"
-#include "bst.h"
+#include "dsun.h"
+
 using namespace dsun;
-TEST(BSTTest, InsertAndContains) {
-  BST<int> bst;
+TEST(BSTreeTest, InsertAndContains) {
+  BSTree<int> bst;
   bst.insert(5);
   bst.insert(3);
   bst.insert(7);
@@ -21,15 +22,15 @@ TEST(BSTTest, InsertAndContains) {
   EXPECT_FALSE(bst.contains(9));
 }
 
-TEST(BSTTest, InsertDuplicates) {
-  BST<int> bst;
+TEST(BSTreeTest, InsertDuplicates) {
+  BSTree<int> bst;
   bst.insert(5);
   bst.insert(5);
   EXPECT_TRUE(bst.contains(5));
 }
 
-TEST(BSTTest, InsertAndContainsNegativeNumbers) {
-  BST<int> bst;
+TEST(BSTreeTest, InsertAndContainsNegativeNumbers) {
+  BSTree<int> bst;
   bst.insert(-5);
   bst.insert(-3);
   bst.insert(-7);
@@ -40,13 +41,13 @@ TEST(BSTTest, InsertAndContainsNegativeNumbers) {
   EXPECT_FALSE(bst.contains(-6));
 }
 
-TEST(BSTTest, ContainsEmpty) {
-  BST<int> bst;
+TEST(BSTreeTest, ContainsEmpty) {
+  BSTree<int> bst;
   EXPECT_FALSE(bst.contains(5));
 }
 
-TEST(BSTTest, FindInTree) {
-  BST<int> bst;
+TEST(BSTreeTest, FindInTree) {
+  BSTree<int> bst;
   bst.insert(5);
   bst.insert(3);
   bst.insert(7);
@@ -55,8 +56,8 @@ TEST(BSTTest, FindInTree) {
   EXPECT_EQ(bst.find(7), std::optional<int>(7));
 }
 
-TEST(BSTTest, FindNotInTree) {
-  BST<int> bst;
+TEST(BSTreeTest, FindNotInTree) {
+  BSTree<int> bst;
   bst.insert(5);
   bst.insert(3);
   bst.insert(7);
@@ -65,13 +66,13 @@ TEST(BSTTest, FindNotInTree) {
   EXPECT_EQ(bst.find(8), std::nullopt);
 }
 
-TEST(BSTTest, FindInEmptyTree) {
-  BST<int> bst;
+TEST(BSTreeTest, FindInEmptyTree) {
+  BSTree<int> bst;
   EXPECT_EQ(bst.find(5), std::nullopt);
 }
 
-TEST(BSTTest, minAndExtract) {
-  BST<int> bst;
+TEST(BSTreeTest, minAndExtract) {
+  BSTree<int> bst;
   bst.insert(5);
   bst.insert(3);
   bst.insert(7);
@@ -82,22 +83,22 @@ TEST(BSTTest, minAndExtract) {
   EXPECT_EQ(bst.min(), std::optional<int>(3));
 }
 
-TEST(BSTTest, minAndExtractEmpty) {
-  BST<int> bst;
+TEST(BSTreeTest, minAndExtractEmpty) {
+  BSTree<int> bst;
   EXPECT_EQ(bst.min(), std::nullopt);
   EXPECT_EQ(bst.extract_min(), std::nullopt);
 }
 
-TEST(BSTTest, minAndExtractSingle) {
-  BST<int> bst;
+TEST(BSTreeTest, minAndExtractSingle) {
+  BSTree<int> bst;
   bst.insert(5);
   EXPECT_EQ(bst.min(), std::optional<int>(5));
   EXPECT_EQ(bst.extract_min(), std::optional<int>(5));
   EXPECT_EQ(bst.min(), std::nullopt);
 }
 
-TEST(BSTTest, maxAndExtract) {
-  BST<int> bst;
+TEST(BSTreeTest, maxAndExtract) {
+  BSTree<int> bst;
   bst.insert(5);
   bst.insert(3);
   bst.insert(7);
@@ -108,14 +109,14 @@ TEST(BSTTest, maxAndExtract) {
   EXPECT_EQ(bst.max(), std::optional<int>(5));
 }
 
-TEST(BSTTest, maxAndExtractEmpty) {
-  BST<int> bst;
+TEST(BSTreeTest, maxAndExtractEmpty) {
+  BSTree<int> bst;
   EXPECT_EQ(bst.max(), std::nullopt);
   EXPECT_EQ(bst.extract_max(), std::nullopt);
 }
 
-TEST(BSTTest, maxAndExtractSingle) {
-  BST<int> bst;
+TEST(BSTreeTest, maxAndExtractSingle) {
+  BSTree<int> bst;
   bst.insert(5);
   EXPECT_EQ(bst.max(), std::optional<int>(5));
   EXPECT_EQ(bst.extract_max(), std::optional<int>(5));
