@@ -8,7 +8,6 @@
 #include <optional>
 #include <algorithm>
 #include <functional>
-#include <format>
 
 namespace dsun {
     template <class T>
@@ -57,7 +56,7 @@ namespace dsun {
         void push(T value);
         void insert(uint32_t index, T value) {
             if (index >= length) {
-                throw std::out_of_range(std::format("Insertion index (is {}) should be <= len (is {})", index, length));
+                throw std::out_of_range("Insertion index (is " + std::to_string(index) + ") should be <= len (is " + std::to_string(length) + ")");
             }
             if (length == cap) {
                 cap *= 2;
@@ -88,7 +87,7 @@ namespace dsun {
         }
         T& operator[](uint32_t index) const {
             if (index >= length) {
-                throw std::out_of_range(std::format("Index out of bounds: {}", index));
+                throw std::out_of_range("Index out of bounds: " + std::to_string(index));
             }
             return this->ptr.get()[index];
         }
