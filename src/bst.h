@@ -120,11 +120,8 @@ namespace dsun {
           case 0:
             f(current);
             return;
-            f(current);
-            return;
         }
       }
-      f(current);
       f(current);
     }
 
