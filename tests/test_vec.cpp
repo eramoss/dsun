@@ -84,11 +84,7 @@ TEST_F(VecTest, PushVec) {
 TEST_F(VecTest, InsertVecEmpty) {
   const int init_cap = 10;
   auto vec = dsun::Vec<int>::with_capacity(init_cap);
-  vec.insert(12, 1);
-
-  EXPECT_EQ(vec.get(12).value(), 1);
-  EXPECT_EQ(vec.len(), 13);
-  EXPECT_EQ(vec.capacity(), init_cap * 2);
+  EXPECT_THROW(vec.insert(init_cap / 2 + 1, 10), std::out_of_range);
 }
 
 TEST_F(VecTest, InsertVec) {

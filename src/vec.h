@@ -8,6 +8,7 @@
 #include <optional>
 #include <algorithm>
 #include <functional>
+#include <format>
 
 namespace dsun {
     template <class T>
@@ -55,15 +56,22 @@ namespace dsun {
         std::optional<T> remove(uint32_t index);
         void push(T value);
         void insert(uint32_t index, T value) {
-            auto new_vec = Vec<T>::with_capacity(std::max(cap * 2, index));
-            for (uint32_t i = 0; i < index; i++) {
-                new_vec.push(this->get(i).value_or(T()));
+            if (index >= length) {
+                throw std::out_of_range(std::format("Insertion index (is {}) should be <= len (is {})", index, length));
             }
-            new_vec.push(value);
-            for (uint32_t i = index; i < length; i++) {
-                new_vec.push(this->get(i).value_or(T()));
+            if (length == cap) {
+                cap *= 2;
+                auto new_ptr = std::make_unique<T[]>(cap);
+                std::copy(ptr.get(), ptr.get() + index, new_ptr.get());
+                new_ptr.get()[index] = value;
+                std::copy(ptr.get() + index, ptr.get() + length, new_ptr.get() + index + 1);
+                ptr = std::move(new_ptr);
             }
-            *this = new_vec;
+            else {
+                std::copy(ptr.get() + index, ptr.get() + length, ptr.get() + index + 1);
+                ptr.get()[index] = value;
+            }
+            length++;
         }
 
         /*
