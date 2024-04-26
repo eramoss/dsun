@@ -69,3 +69,55 @@ TEST(BSTTest, FindInEmptyTree) {
   BST<int> bst;
   EXPECT_EQ(bst.find(5), std::nullopt);
 }
+
+TEST(BSTTest, minAndExtract) {
+  BST<int> bst;
+  bst.insert(5);
+  bst.insert(3);
+  bst.insert(7);
+  bst.insert(1);
+  bst.insert(4);
+  EXPECT_EQ(bst.min(), std::optional<int>(1));
+  EXPECT_EQ(bst.extract_min(), std::optional<int>(1));
+  EXPECT_EQ(bst.min(), std::optional<int>(3));
+}
+
+TEST(BSTTest, minAndExtractEmpty) {
+  BST<int> bst;
+  EXPECT_EQ(bst.min(), std::nullopt);
+  EXPECT_EQ(bst.extract_min(), std::nullopt);
+}
+
+TEST(BSTTest, minAndExtractSingle) {
+  BST<int> bst;
+  bst.insert(5);
+  EXPECT_EQ(bst.min(), std::optional<int>(5));
+  EXPECT_EQ(bst.extract_min(), std::optional<int>(5));
+  EXPECT_EQ(bst.min(), std::nullopt);
+}
+
+TEST(BSTTest, maxAndExtract) {
+  BST<int> bst;
+  bst.insert(5);
+  bst.insert(3);
+  bst.insert(7);
+  bst.insert(1);
+  bst.insert(4);
+  EXPECT_EQ(bst.max(), std::optional<int>(7));
+  EXPECT_EQ(bst.extract_max(), std::optional<int>(7));
+  EXPECT_EQ(bst.max(), std::optional<int>(5));
+}
+
+TEST(BSTTest, maxAndExtractEmpty) {
+  BST<int> bst;
+  EXPECT_EQ(bst.max(), std::nullopt);
+  EXPECT_EQ(bst.extract_max(), std::nullopt);
+}
+
+TEST(BSTTest, maxAndExtractSingle) {
+  BST<int> bst;
+  bst.insert(5);
+  EXPECT_EQ(bst.max(), std::optional<int>(5));
+  EXPECT_EQ(bst.extract_max(), std::optional<int>(5));
+  EXPECT_EQ(bst.max(), std::nullopt);
+}

@@ -88,6 +88,50 @@ namespace dsun {
       return result;
     }
 
+    std::optional<T> min() {
+      if (is_empty()) {
+        return std::nullopt;
+      }
+      auto current = &root;
+      while (current->has_value() && current->value()->left.has_value()) {
+        current = &current->value()->left;
+      }
+      return current->value()->value;
+    }
+    std::optional<T> extract_min() {
+      if (is_empty()) {
+        return std::nullopt;
+      }
+      auto current = &root;
+      while (current->has_value() && current->value()->left.has_value()) {
+        current = &current->value()->left;
+      }
+      T result = current->value()->value;
+      *current = std::nullopt;
+      return result;
+    }
+    std::optional<T> max() {
+      if (is_empty()) {
+        return std::nullopt;
+      }
+      auto current = &root;
+      while (current->has_value() && current->value()->right.has_value()) {
+        current = &current->value()->right;
+      }
+      return current->value()->value;
+    }
+    std::optional<T> extract_max() {
+      if (is_empty()) {
+        return std::nullopt;
+      }
+      auto current = &root;
+      while (current->has_value() && current->value()->right.has_value()) {
+        current = &current->value()->right;
+      }
+      T result = current->value()->value;
+      *current = std::nullopt;
+      return result;
+    }
     /*Helpers*/
     bool is_empty() const {
       return !root.has_value();
