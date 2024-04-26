@@ -5,5 +5,6 @@
 #include "vec.h"
 #include "hash.h"
 #include "stack.h"
+#include "vec_deque.h"
 
 #endif // DSUN_H

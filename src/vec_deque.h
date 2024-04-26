@@ -1,6 +1,7 @@
 #ifndef DSUN_VEC_DEQUE_H
 #define DSUN_VEC_DEQUE_H
 #include "vec.h"
+#include <assert.h>
 
 template <typename T>
 class VecDeque {
