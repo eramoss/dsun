@@ -113,8 +113,8 @@ public:
     buf.as_slice()[index] = value;
   }
 
-  T buffer_read(uint32_t index) const {
-    return buf.get(index).value();
+  T buffer_read(uint32_t index) {
+    return buf.as_slice()[index];
   }
 
   void buffer_resize(uint32_t new_capacity) {

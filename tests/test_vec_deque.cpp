@@ -70,3 +70,51 @@ TEST(VecDequeTest, PushFrontInFullCap) {
   deque.push_front(4);
   EXPECT_EQ(deque.pop_front(), 4);
 }
+#include "gtest/gtest.h"
+#include "vec_deque.h"
+
+TEST(VecDequeTest, MakeContiguousEmpty) {
+  VecDeque<int> deque;
+  // Calling make_contiguous on an empty deque should not cause any errors
+  deque.make_contiguous();
+  EXPECT_EQ(deque.size(), 0);
+  EXPECT_TRUE(deque.is_empty());
+}
+
+TEST(VecDequeTest, MakeContiguousSingleElement) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  // Calling make_contiguous on a deque with one element should not change anything
+  deque.make_contiguous();
+  EXPECT_EQ(deque.size(), 1);
+  EXPECT_EQ(deque[0], 1);
+}
+
+TEST(VecDequeTest, SizeAndCapacity) {
+  VecDeque<int> deque;
+  // Initially, the deque should be empty
+  EXPECT_EQ(deque.size(), 0);
+  EXPECT_TRUE(deque.is_empty());
+  // Add some elements to the deque
+  for (int i = 0; i < 10; ++i) {
+    deque.push_back(i);
+  }
+  // Now, the size should be 10 and the capacity should be at least 10
+  EXPECT_EQ(deque.size(), 10);
+  EXPECT_GE(deque.capacity(), 10);
+  EXPECT_FALSE(deque.is_empty());
+}
+
+TEST(VecDequeTest, PopFrontUntilEmpty) {
+  VecDeque<int> deque;
+  for (int i = 0; i < 10; ++i) {
+    deque.push_back(i);
+  }
+  // Pop all elements from the front of the deque
+  while (!deque.is_empty()) {
+    deque.pop_front();
+  }
+  // Now, the deque should be empty
+  EXPECT_EQ(deque.size(), 0);
+  EXPECT_TRUE(deque.is_empty());
+}
