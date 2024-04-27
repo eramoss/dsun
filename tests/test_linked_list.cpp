@@ -59,7 +59,9 @@ TEST(LinkedListInitTest, Copy) {
   LinkedList<int> list2 = LinkedList<int>::from_list({ 4, 5, 6 });
 
   list1 = list2;
-  EXPECT_EQ(list1, list2);
+  for (int i = 0; i < 3; ++i) {
+    EXPECT_EQ(list1[i], list2[i]);
+  }
 }
 
 class LinkedListTest : public ::testing::Test {
@@ -197,10 +199,10 @@ TEST_F(LinkedListTest, OperatorIndex) {
   list.push_back(20);
   list.push_back(30);
 
-  EXPECT_EQ(list[0].value(), 10);
-  EXPECT_EQ(list[1].value(), 20);
-  EXPECT_EQ(list[2].value(), 30);
-  EXPECT_FALSE(list[3].has_value());
+  EXPECT_EQ(list[0], 10);
+  EXPECT_EQ(list[1], 20);
+  EXPECT_EQ(list[2], 30);
+  EXPECT_THROW(list[3], std::out_of_range);
 }
 
 TEST_F(LinkedListTest, Insert) {
@@ -211,16 +213,16 @@ TEST_F(LinkedListTest, Insert) {
   list.insert(1, 15);
   EXPECT_EQ(list.len(), 4);
 
-  EXPECT_EQ(list[0].value(), 10);
-  EXPECT_EQ(list[1].value(), 15);
-  EXPECT_EQ(list[2].value(), 20);
-  EXPECT_EQ(list[3].value(), 30);
+  EXPECT_EQ(list[0], 10);
+  EXPECT_EQ(list[1], 15);
+  EXPECT_EQ(list[2], 20);
+  EXPECT_EQ(list[3], 30);
 }
 
 TEST_F(LinkedListTest, InsertEmpty) {
   list.insert(0, 10);
   EXPECT_EQ(list.len(), 1);
-  EXPECT_EQ(list[0].value(), 10);
+  EXPECT_EQ(list[0], 10);
 }
 
 TEST_F(LinkedListTest, InsertOutBounds) {
@@ -232,7 +234,7 @@ TEST_F(LinkedListTest, RemoveIndex) {
   auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
   list.remove_at(2);
   EXPECT_EQ(list.len(), 4);
-  EXPECT_EQ(list[2].value(), 40);
+  EXPECT_EQ(list[2], 40);
 }
 
 TEST_F(LinkedListTest, RemoveEmpty) {
@@ -251,14 +253,14 @@ TEST_F(LinkedListTest, RemoveData) {
   auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
   list.remove(30);
   EXPECT_EQ(list.len(), 4);
-  EXPECT_EQ(list[2].value(), 40);
+  EXPECT_EQ(list[2], 40);
 }
 
 TEST_F(LinkedListTest, RemoveUnexpectedData) {
   auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
   list.remove(31);
   EXPECT_EQ(list.len(), 5);
-  EXPECT_EQ(list[2].value(), 30);
+  EXPECT_EQ(list[2], 30);
 }
 
 TEST_F(LinkedListTest, RemoveOutOfBoundsData) {
@@ -299,27 +301,6 @@ TEST(HighOrderFunctions, map_mut) {
   }
 }
 
-TEST(HighOrderFunctions, intersection) {
-  auto list1 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  auto list2 = LinkedList<int>::from_list({ 20, 40, 60, 80, 100 });
-  auto new_list = list1.intersection(list2);
-  EXPECT_EQ(new_list.len(), 2);
-  for (auto it = new_list.begin(); it.has_next(); ++it) {
-    EXPECT_EQ(*it, (it.index() * 20) + 20);
-  }
-}
-
-TEST(HighOrderFunctions, difference) {
-  auto list1 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  auto list2 = LinkedList<int>::from_list({ 20, 40, 60, 80, 100 });
-  auto expected_list = LinkedList<int>::from_list({ 10, 30, 50,60, 80, 100 });
-  auto new_list = list1.difference(list2);
-  EXPECT_EQ(new_list.len(), 6);
-  for (auto it = new_list.begin(); it.has_next(); ++it) {
-    EXPECT_EQ(*it, expected_list.pop_front().value());
-  }
-}
-
 TEST(HighOrderFunctions, filter) {
   auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
   auto new_list = list.filter([](int x) { return x % 20 == 0; });
@@ -327,22 +308,4 @@ TEST(HighOrderFunctions, filter) {
   for (auto it = new_list.begin(); it.has_next(); ++it) {
     EXPECT_EQ(*it, (it.index() * 20) + 20);
   }
-}
-
-TEST(Operators, EqualityOperator) {
-  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  auto list2 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  auto list3 = LinkedList<int>::from_list({ 10, 20, 30, 40, 60 });
-
-  EXPECT_EQ(list, list2);
-  EXPECT_NE(list, list3);
-}
-
-TEST(Operators, MinusOperator) {
-  auto list = LinkedList<int>::from_list({ 3, 20, 30, 40, 50 });
-  auto list2 = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  auto list3 = list - list2;
-
-  EXPECT_EQ(list3.len(), 1);
-  EXPECT_EQ(list3[0].value(), 3);
 }

@@ -8,6 +8,7 @@
 #include <optional>
 #include <functional>
 #include <iostream>
+#include "utils.h"
 namespace dsun {
 
   template<typename T>
@@ -86,13 +87,135 @@ namespace dsun {
     /*
       Primary methods
     */
-    void push_back(const T& data);
-    void push_front(const T& data);
-    void insert(size_t index, const T& data);
-    std::optional<T> pop_back();
-    std::optional<T> pop_front();
-    std::optional<T> remove_at(size_t index);
-    std::optional<T> remove(const T& data);
+    void push_back(const T& data) {
+      auto new_node = std::make_shared<Node>();
+      new_node->data = data;
+      new_node->next = std::nullopt;
+
+      if (!head) {
+        head = new_node;
+      }
+      else {
+        tail.value()->next = new_node;
+      }
+      tail = new_node;
+      size++;
+    }
+    void push_front(const T& data) {
+      auto new_node = std::make_shared<Node>();
+      new_node->data = data;
+      new_node->next = head;
+
+      if (!head) {
+        tail = new_node;
+      }
+      head = new_node;
+      size++;
+    }
+
+    void insert(size_t index, const T& data) {
+      if (index > size) {
+        return;
+      }
+
+      if (index == 0) {
+        push_front(data);
+        return;
+      }
+
+      if (index == size) {
+        push_back(data);
+        return;
+      }
+
+      auto new_node = std::make_shared<Node>();
+      new_node->data = data;
+
+      auto current = head;
+      for (size_t i = 0; i < index - 1; i++) {
+        current = current.value()->next;
+      }
+
+      new_node->next = current.value()->next;
+      current.value()->next = new_node;
+      size++;
+    }
+    std::optional<T> pop_back() {
+      if (!head) {
+        return std::nullopt;
+      }
+
+      auto current = head;
+      std::optional<std::shared_ptr<Node>> prev = std::nullopt;
+      while (current.value()->next) {
+        prev = current;
+        current = current.value()->next;
+      }
+
+      if (prev) {
+        prev.value()->next = std::nullopt;
+        tail = prev;
+      }
+      else {
+        head = std::nullopt;
+        tail = std::nullopt;
+      }
+      size--;
+      return current.value()->data;
+    }
+    std::optional<T> pop_front() {
+      if (!head) {
+        return std::nullopt;
+      }
+
+      auto current = head;
+      head = current.value()->next;
+      size--;
+      return current.value()->data;
+    }
+    std::optional<T> remove_at(size_t index) {
+      if (index >= size) {
+        return std::nullopt;
+      }
+
+      if (index == 0) {
+        return pop_front();
+      }
+
+      if (index == size - 1) {
+        return pop_back();
+      }
+
+      auto current = head;
+      std::optional<std::shared_ptr<Node>> prev = std::nullopt;
+      for (size_t i = 0; i < index; i++) {
+        prev = current;
+        current = current.value()->next;
+      }
+
+      prev.value()->next = current.value()->next;
+      size--;
+      return current.value()->data;
+    }
+    std::optional<T> remove(const T& data) {
+      auto current = head;
+      std::optional<std::shared_ptr<Node>> prev = std::nullopt;
+      while (current) {
+        if (current.value()->data == data) {
+          if (prev) {
+            prev.value()->next = current.value()->next;
+          }
+          else {
+            head = current.value()->next;
+          }
+          size--;
+          return current.value()->data;
+        }
+        prev = current;
+        current = current.value()->next;
+      }
+      return std::nullopt;
+    }
 
     /*
       Getters
@@ -136,7 +259,6 @@ namespace dsun {
       if (index >= size) {
         return std::nullopt;
       }
-
       auto current = head;
       for (size_t i = 0; i < index; i++) {
         current = current.value()->next;
@@ -147,7 +269,6 @@ namespace dsun {
       if (index >= size) {
         return std::nullopt;
       }
-
       auto current = head;
       for (size_t i = 0; i < index; i++) {
         current = current.value()->next;
@@ -155,33 +276,41 @@ namespace dsun {
       return &current.value()->data;
     }
 
-    std::optional<T> operator[](size_t index) const {
-      return at(index);
-    }
-    bool operator==(const LinkedList<T>& other) const {
-      if (size != other.size) {
-        return false;
+    T& operator[](size_t index) {
+      if (index >= size) {
+        throw std::out_of_range("Index out of range" + dsun_utils::to_string(index));
       }
-      for (auto it = begin(), it2 = other.begin(); it != end(); ++it, ++it2) {
-        if (*it != *it2) {
-          return false;
-        }
-      }
-      return true;
+      return *at_mut(index).value();
     }
-    bool operator!=(const LinkedList<T>& other) const {
-      return !(*this == other);
-    }
-    bool empty() const {
+
+    bool is_empty() const {
       return size == 0;
     }
-    LinkedList<T> operator-(const LinkedList<T>& other) {
-      auto list = *this;
-      for (auto it = other.begin(); it != other.end(); ++it) {
-        list.remove(*it);
+
+    LinkedList<T> map(std::function<T(const T&)> f) {
+      auto list = LinkedList<T>();
+      for (const auto& it : *this) {
+        list.push_back(f(it));
       }
       return list;
     }
+
+    void map_mut(std::function<void(T&)> f) {
+      for (auto it = begin(); it != end(); ++it) {
+        f(it.get_mut());
+      }
+    }
+
+    LinkedList<T> filter(std::function<bool(const T&)> f) {
+      auto list = LinkedList<T>();
+      for (const auto& it : *this) {
+        if (f(it)) {
+          list.push_back(it);
+        }
+      }
+      return list;
+    }
+
     class Iterator {
     private:
       node_ptr_opt current;
@@ -218,208 +347,7 @@ namespace dsun {
     Iterator end() const {
       return Iterator(std::nullopt);
     }
-
-    LinkedList<T> map(std::function<T(const T&)> f) {
-      auto list = LinkedList<T>();
-      for (auto it = begin(); it != end(); ++it) {
-        list.push_back(f(*it));
-      }
-      return list;
-    }
-
-    void map_mut(std::function<void(T&)> f) {
-      for (auto it = begin(); it != end(); ++it) {
-        f(it.get_mut());
-      }
-    }
-
-    LinkedList<T> filter(std::function<bool(const T&)> f) {
-      auto list = LinkedList<T>();
-      for (auto it = begin(); it != end(); ++it) {
-        if (f(*it)) {
-          list.push_back(*it);
-        }
-      }
-      return list;
-    }
-
-    LinkedList<T> intersection(const LinkedList<T>& other) {
-      auto list = LinkedList<T>();
-      for (auto it = begin(); it != end(); ++it) {
-        if (other.get(*it).has_value()) {
-          list.push_back(*it);
-        }
-      }
-      return list;
-    }
-
-    LinkedList<T> difference(const LinkedList<T>& other) {
-      auto list = LinkedList<T>();
-      for (auto it = begin(); it != end(); ++it) {
-        if (!other.get(*it).has_value()) {
-          list.push_back(*it);
-        }
-      }
-      for (auto it = other.begin(); it != other.end(); ++it) {
-        if (!get(*it).has_value()) {
-          list.push_back(*it);
-        }
-      }
-      return list;
-    }
-
   };
-
-
-  /*
-    Implementation of primary functions
-
-    Dont touch on it without be sure that is necessary
-    Have a good time
-    :)
-  */
-  template<typename T>
-  void LinkedList<T>::push_back(const T& data) {
-    auto new_node = std::make_shared<Node>();
-    new_node->data = data;
-    new_node->next = std::nullopt;
-
-    if (!head) {
-      head = new_node;
-    }
-    else {
-      tail.value()->next = new_node;
-    }
-    tail = new_node;
-    size++;
-  }
-
-  template<typename T>
-  void LinkedList<T>::push_front(const T& data) {
-    auto new_node = std::make_shared<Node>();
-    new_node->data = data;
-    new_node->next = head;
-
-    if (!head) {
-      tail = new_node;
-    }
-    head = new_node;
-    size++;
-  }
-
-  template<typename T>
-  void LinkedList<T>::insert(size_t index, const T& data) {
-    if (index > size) {
-      return;
-    }
-
-    if (index == 0) {
-      push_front(data);
-      return;
-    }
-
-    if (index == size) {
-      push_back(data);
-      return;
-    }
-
-    auto new_node = std::make_shared<Node>();
-    new_node->data = data;
-
-    auto current = head;
-    for (size_t i = 0; i < index - 1; i++) {
-      current = current.value()->next;
-    }
-
-    new_node->next = current.value()->next;
-    current.value()->next = new_node;
-    size++;
-  }
-
-  template<typename T>
-  std::optional<T> LinkedList<T>::pop_back() {
-    if (!head) {
-      return std::nullopt;
-    }
-
-    auto current = head;
-    std::optional<std::shared_ptr<Node>> prev = std::nullopt;
-    while (current.value()->next) {
-      prev = current;
-      current = current.value()->next;
-    }
-
-    if (prev) {
-      prev.value()->next = std::nullopt;
-      tail = prev;
-    }
-    else {
-      head = std::nullopt;
-      tail = std::nullopt;
-    }
-    size--;
-    return current.value()->data;
-  }
-
-  template<typename T>
-  std::optional<T> LinkedList<T>::pop_front() {
-    if (!head) {
-      return std::nullopt;
-    }
-
-    auto current = head;
-    head = current.value()->next;
-    size--;
-    return current.value()->data;
-  }
-
-  template<typename T>
-  std::optional<T> LinkedList<T>::remove_at(size_t index) {
-    if (index >= size) {
-      return std::nullopt;
-    }
-
-    if (index == 0) {
-      return pop_front();
-    }
-
-    if (index == size - 1) {
-      return pop_back();
-    }
-
-    auto current = head;
-    std::optional<std::shared_ptr<Node>> prev = std::nullopt;
-    for (size_t i = 0; i < index; i++) {
-      prev = current;
-      current = current.value()->next;
-    }
-
-    prev.value()->next = current.value()->next;
-    size--;
-    return current.value()->data;
-  }
-
-  template<typename T>
-  std::optional<T> LinkedList<T>::remove(const T& data) {
-    auto current = head;
-    std::optional<std::shared_ptr<Node>> prev = std::nullopt;
-    while (current) {
-      if (current.value()->data == data) {
-        if (prev) {
-          prev.value()->next = current.value()->next;
-        }
-        else {
-          head = current.value()->next;
-        }
-        size--;
-        return current.value()->data;
-      }
-      prev = current;
-      current = current.value()->next;
-    }
-    return std::nullopt;
-  }
-
 }
 
 

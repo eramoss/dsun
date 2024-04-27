@@ -20,7 +20,7 @@ namespace dsun {
       return stack.front();
     }
     bool is_empty() {
-      return stack.empty();
+      return stack.is_empty();
     }
     size_t size() {
       return stack.len();
