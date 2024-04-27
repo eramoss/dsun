@@ -42,12 +42,3 @@ to build and test just run:
   python3 scripts/build.py
   python3 scripts/test.py
 ```
-
-
-## Running examples
-
-After [build](#build), just need to choose the example like `M1.cpp`
-and run:
-``` sh
-  build/examples/M1
-```
