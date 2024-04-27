@@ -217,63 +217,62 @@ namespace dsun {
       return std::nullopt;
     }
 
-    /*
-      Getters
-    */
     size_t len() const {
       return size;
     }
     std::optional<T> front() const {
-      if (!head) {
+      if (is_empty()) {
         return std::nullopt;
       }
       return head.value()->data;
     }
     std::optional<T> back() const {
-      if (!tail) {
+      if (is_empty()) {
         return std::nullopt;
       }
       return tail.value()->data;
     }
+
     std::optional<T> get(const T& data) const {
-      auto current = head;
-      while (current) {
-        if (current.value()->data == data) {
-          return current.value()->data;
+      for (const auto& it : *this) {
+        if (it == data) {
+          return std::optional<T>(it);
         }
-        current = current.value()->next;
       }
       return std::nullopt;
     }
+
     std::optional<T*> get_mut(const T& data) {
-      auto current = head;
-      while (current) {
-        if (current.value()->data == data) {
-          return &current.value()->data;
+      for (auto it = begin(); it != end(); ++it) {
+        if (*it == data) {
+          return std::optional<T*>(&it.get_mut());
         }
-        current = current.value()->next;
       }
       return std::nullopt;
     }
+
     std::optional<T> at(size_t index) const {
-      if (index >= size) {
+      if (index >= size || is_empty()) {
         return std::nullopt;
       }
-      auto current = head;
-      for (size_t i = 0; i < index; i++) {
-        current = current.value()->next;
-      }
-      return current.value()->data;
+      T result;
+      map_index([&](T& item, size_t i) {
+        if (i == index)
+          result = item;
+        });
+      return std::optional<T>(result);
     }
+
     std::optional<T*> at_mut(size_t index) {
-      if (index >= size) {
+      if (index >= size || is_empty()) {
         return std::nullopt;
       }
-      auto current = head;
-      for (size_t i = 0; i < index; i++) {
-        current = current.value()->next;
-      }
-      return &current.value()->data;
+      T* result;
+      map_index([&](T& item, size_t i) {
+        if (i == index)
+          result = &item;
+        });
+      return std::optional<T*>(result);
     }
 
     T& operator[](size_t index) {
@@ -287,12 +286,19 @@ namespace dsun {
       return size == 0;
     }
 
-    LinkedList<T> map(std::function<T(const T&)> f) {
+    LinkedList<T> map(std::function<T(const T&)> f) const {
       auto list = LinkedList<T>();
       for (const auto& it : *this) {
         list.push_back(f(it));
       }
       return list;
+    }
+
+    LinkedList<T> map_index(std::function<void(T&, size_t)> f) const {
+      for (auto it = begin(); it != end(); ++it) {
+        f(it.get_mut(), it.index());
+      }
+      return *this;
     }
 
     void map_mut(std::function<void(T&)> f) {
@@ -301,7 +307,7 @@ namespace dsun {
       }
     }
 
-    LinkedList<T> filter(std::function<bool(const T&)> f) {
+    LinkedList<T> filter(std::function<bool(const T&)> f) const {
       auto list = LinkedList<T>();
       for (const auto& it : *this) {
         if (f(it)) {
