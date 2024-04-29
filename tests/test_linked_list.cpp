@@ -189,8 +189,7 @@ TEST_F(LinkedListTest, InsertEmpty) {
 }
 
 TEST_F(LinkedListTest, InsertOutBounds) {
-  list.insert(2, 10);
-  EXPECT_EQ(list.len(), 0);
+  EXPECT_THROW(list.insert(1, 10), std::out_of_range);
 }
 
 TEST_F(LinkedListTest, RemoveIndex) {
@@ -202,14 +201,12 @@ TEST_F(LinkedListTest, RemoveIndex) {
 
 TEST_F(LinkedListTest, RemoveEmpty) {
   LinkedList<int> list;
-  list.remove(0);
-  EXPECT_EQ(list.len(), 0);
+  EXPECT_THROW(list.remove(0), std::out_of_range);
 }
 
 TEST_F(LinkedListTest, RemoveOutOfBounds) {
   LinkedList<int> list;
-  list.remove(2);
-  EXPECT_EQ(list.len(), 0);
+  EXPECT_THROW(list.remove(1), std::out_of_range);
 }
 
 
