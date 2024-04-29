@@ -19,9 +19,9 @@ namespace dsun {
       std::optional<std::shared_ptr<Node>> next;
       std::optional<std::shared_ptr<Node>> prev;
 
-      Node map(std::function<void(const T&)> f) {
+      Node map(std::function<void(const std::optional<std::shared_ptr<Node>>&)> f) {
         while (this->next.has_value()) {
-          f(this->data);
+          f(this);
           this = this->next.value().get();
         }
       }
@@ -39,6 +39,14 @@ namespace dsun {
       head = other.head;
       tail = other.tail;
       size = other.size;
+    }
+
+    static LinkedList<T> from_list(std::initializer_list<T> list) {
+      LinkedList<T> linked_list;
+      for (const auto& item : list) {
+        linked_list.push_back(item);
+      }
+      return linked_list;
     }
 
     void push_back(const T& data) {
@@ -59,6 +67,56 @@ namespace dsun {
 
     std::optional<T> pop_front() {
       return pop_front_node();
+    }
+
+    T remove(uint32_t at) {
+      if (at >= size) {
+        throw std::out_of_range("Index out of range: " + dsun_utils::to_string(at));
+      }
+      uint32_t offset_from_end = size - at - 1;
+      if (at <= offset_from_end) {
+        auto cursor = Cursor(head, this);
+        for (uint32_t i = 0; i < at; i++) {
+          cursor.next();
+        }
+        return cursor.remove_current();
+      }
+      else {
+        auto cursor = Cursor(tail, this);
+        for (uint32_t i = 0; i < offset_from_end; i++) {
+          cursor.prev();
+        }
+        return cursor.remove_current();
+      }
+    }
+
+    void insert(uint32_t at, const T& data) {
+      if (at > size) {
+        throw std::out_of_range("Index out of range: " + dsun_utils::to_string(at));
+      }
+      if (at == 0) {
+        push_front(data);
+        return;
+      }
+      if (at == size) {
+        push_back(data);
+        return;
+      }
+      uint32_t offset_from_end = size - at - 1;
+      if (at <= offset_from_end) {
+        auto cursor = Cursor(head, this);
+        for (uint32_t i = 0; i < at; i++) {
+          cursor.next();
+        }
+        cursor.insert_in_the_middle(data);
+      }
+      else {
+        auto cursor = Cursor(tail, this);
+        for (uint32_t i = 0; i < offset_from_end; i++) {
+          cursor.prev();
+        }
+        cursor.insert_in_the_middle(data);
+      }
     }
 
 
@@ -200,6 +258,50 @@ namespace dsun {
     }
   private:
 
+    class Cursor {
+    private:
+      node_ptr_opt current;
+      LinkedList<T>* list;
+      uint32_t index_;
+    public:
+      Cursor(node_ptr_opt current, LinkedList<T>* list) : current(current), list(list) {}
+      T& get_mut() {
+        return current.value()->data;
+      }
+      Cursor& next() {
+        current = current.value()->next;
+        index_++;
+        return *this;
+      }
+      Cursor& prev() {
+        current = current.value()->prev;
+        index_--;
+        return *this;
+      }
+
+      bool has_next() {
+        return current.value()->next.has_value();
+      }
+      bool has_prev() {
+        return current.value()->prev.has_value();
+      }
+      uint32_t index() {
+        return index_;
+      }
+      T remove_current() {
+        auto data = current.value()->data;
+        list->unlink_node(current);
+        return data;
+      }
+
+      void insert_in_the_middle(const T& data) {
+        auto new_node = std::make_shared<Node>();
+        new_node->data = data;
+        list->link_node_in_the_middle(new_node, current.value()->prev, current);
+      }
+    };
+
+
     void push_back_node(node_ptr_opt node) {
       if (is_empty()) {
         head = node;
@@ -259,6 +361,7 @@ namespace dsun {
       if (node.value()->next.has_value()) {
         node.value()->next.value()->prev = node.value()->prev;
       }
+      size--;
     }
 
     void link_node_in_the_middle(node_ptr_opt node, node_ptr_opt prev, node_ptr_opt next) {
@@ -266,6 +369,7 @@ namespace dsun {
       node.value()->next = next;
       prev.value()->next = node;
       next.value()->prev = node;
+      size++;
     }
 
   };

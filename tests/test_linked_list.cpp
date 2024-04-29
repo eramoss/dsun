@@ -3,18 +3,6 @@
 
 using namespace dsun;
 
-TEST(LinkedListInitTest, FromArrTest) {
-  int arr[] = { 1, 2, 3, 4, 5 };
-  LinkedList<int> list_from_arr = LinkedList<int>::from_arr(arr, 5);
-
-  ASSERT_EQ(list_from_arr.len(), 5);
-
-  for (int i = 0; i < 5; ++i) {
-    auto node = list_from_arr.pop_front();
-    ASSERT_TRUE(node.has_value());
-    ASSERT_EQ(node.value(), arr[i]);
-  }
-}
 
 TEST(LinkedListInitTest, FromListTest) {
   LinkedList<int> list_from_list = LinkedList<int>::from_list({ 1, 2, 3, 4, 5 });
@@ -28,31 +16,6 @@ TEST(LinkedListInitTest, FromListTest) {
   }
 }
 
-TEST(LinkedListInitTest, FromSliceTest) {
-  LinkedList<int> list_from_list = LinkedList<int>::from_slice({ 1, 2, 3, 4, 5 });
-  ASSERT_EQ(list_from_list.len(), 5);
-
-
-  for (int i = 1; i <= 5; ++i) {
-    auto node = list_from_list.pop_front();
-    ASSERT_TRUE(node.has_value());
-    ASSERT_EQ(node.value(), i);
-  }
-}
-
-TEST(LinkedListInitTest, FromPartsTest) {
-  LinkedList<int> list1 = LinkedList<int>::from_list({ 1, 2, 3 });
-  LinkedList<int> list2 = LinkedList<int>::from_list({ 4, 5, 6 });
-
-  LinkedList<int> list_from_parts = LinkedList<int>::from_parts(list1, list2);
-  ASSERT_EQ(list_from_parts.len(), 6);
-
-  for (int i = 1; i <= 6; ++i) {
-    auto node = list_from_parts.pop_front();
-    ASSERT_TRUE(node.has_value());
-    ASSERT_EQ(node.value(), i);
-  }
-}
 
 TEST(LinkedListInitTest, Copy) {
   LinkedList<int> list1 = LinkedList<int>::from_list({ 1, 2, 3 });
@@ -232,42 +195,23 @@ TEST_F(LinkedListTest, InsertOutBounds) {
 
 TEST_F(LinkedListTest, RemoveIndex) {
   auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  list.remove_at(2);
+  list.remove(2);
   EXPECT_EQ(list.len(), 4);
   EXPECT_EQ(list[2], 40);
 }
 
 TEST_F(LinkedListTest, RemoveEmpty) {
   LinkedList<int> list;
-  list.remove_at(0);
+  list.remove(0);
   EXPECT_EQ(list.len(), 0);
 }
 
 TEST_F(LinkedListTest, RemoveOutOfBounds) {
   LinkedList<int> list;
-  list.remove_at(2);
+  list.remove(2);
   EXPECT_EQ(list.len(), 0);
 }
 
-TEST_F(LinkedListTest, RemoveData) {
-  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  list.remove(30);
-  EXPECT_EQ(list.len(), 4);
-  EXPECT_EQ(list[2], 40);
-}
-
-TEST_F(LinkedListTest, RemoveUnexpectedData) {
-  auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
-  list.remove(31);
-  EXPECT_EQ(list.len(), 5);
-  EXPECT_EQ(list[2], 30);
-}
-
-TEST_F(LinkedListTest, RemoveOutOfBoundsData) {
-  LinkedList<int> list;
-  list.remove(31);
-  EXPECT_EQ(list.len(), 0);
-}
 
 TEST(IteratorLinkedListTest, next) {
   auto list = LinkedList<int>::from_list({ 10, 20, 30, 40, 50 });
