@@ -17,7 +17,14 @@ namespace dsun {
     struct Node {
       T data;
       std::optional<std::shared_ptr<Node>> next;
+      std::optional<std::shared_ptr<Node>> prev;
 
+      Node map(std::function<void(const T&)> f) {
+        while (this->next.has_value()) {
+          f(this->data);
+          this = this->next.value().get();
+        }
+      }
     };
     using node_ptr_opt = std::optional<std::shared_ptr<Node>>;
 
@@ -26,196 +33,34 @@ namespace dsun {
     size_t size;
 
   public:
+    LinkedList() : head(std::nullopt), tail(std::nullopt), size(0) {}
 
-    /*
-      Constructors
-    */
-    LinkedList() : size(0) {
-      head = std::nullopt;
-      tail = std::nullopt;
-    }
-    static LinkedList<T> from_arr(const T* data, size_t len) {
-      LinkedList<T> list;
-      for (size_t i = 0; i < len; i++) {
-        list.push_back(data[i]);
-      }
-      return list;
-    }
-    template<std::size_t N>
-    static LinkedList<T> from_slice(const T(&arr)[N]) {
-      auto list = LinkedList<T>();
-      for (std::size_t i = 0; i < N; ++i) {
-        list.push_back(arr[i]);
-      }
-      return list;
-    }
-    static LinkedList<T> from_list(const std::initializer_list<T> list) {
-      LinkedList<T> linked_list;
-      for (const auto& item : list) {
-        linked_list.push_back(item);
-      }
-      return linked_list;
+    LinkedList(const LinkedList<T>& other) {
+      head = other.head;
+      tail = other.tail;
+      size = other.size;
     }
 
-    static LinkedList<T> from_parts(const LinkedList<T>& first, const LinkedList<T>& second) {
-      auto list = LinkedList<T>();
-      for (size_t i = 0; i < first.len(); i++) {
-        list.push_back(first.at(i).value());
-      }
-      for (size_t i = 0; i < second.len(); i++) {
-        list.push_back(second.at(i).value());
-      }
-
-      return list;
-    }
-    LinkedList<T> operator=(const LinkedList<T>& other) {
-      clean();
-      for (auto it = other.begin(); it != other.end(); ++it) {
-        push_back(*it);
-      }
-      return *this;
-    }
-    void clean() {
-      head = std::nullopt;
-      tail = std::nullopt;
-      size = 0;
-    }
-    ~LinkedList() {
-      clean();
-    }
-
-    /*
-      Primary methods
-    */
     void push_back(const T& data) {
       auto new_node = std::make_shared<Node>();
       new_node->data = data;
-      new_node->next = std::nullopt;
-
-      if (!head) {
-        head = new_node;
-      }
-      else {
-        tail.value()->next = new_node;
-      }
-      tail = new_node;
-      size++;
+      push_back_node(new_node);
     }
+
+    std::optional<T> pop_back() {
+      return pop_back_node();
+    }
+
     void push_front(const T& data) {
       auto new_node = std::make_shared<Node>();
       new_node->data = data;
-      new_node->next = head;
-
-      if (!head) {
-        tail = new_node;
-      }
-      head = new_node;
-      size++;
+      push_front_node(new_node);
     }
 
-    void insert(size_t index, const T& data) {
-      if (index > size) {
-        return;
-      }
-
-      if (index == 0) {
-        push_front(data);
-        return;
-      }
-
-      if (index == size) {
-        push_back(data);
-        return;
-      }
-
-      auto new_node = std::make_shared<Node>();
-      new_node->data = data;
-
-      auto current = head;
-      for (size_t i = 0; i < index - 1; i++) {
-        current = current.value()->next;
-      }
-
-      new_node->next = current.value()->next;
-      current.value()->next = new_node;
-      size++;
-    }
-    std::optional<T> pop_back() {
-      if (!head) {
-        return std::nullopt;
-      }
-
-      auto current = head;
-      std::optional<std::shared_ptr<Node>> prev = std::nullopt;
-      while (current.value()->next) {
-        prev = current;
-        current = current.value()->next;
-      }
-
-      if (prev) {
-        prev.value()->next = std::nullopt;
-        tail = prev;
-      }
-      else {
-        head = std::nullopt;
-        tail = std::nullopt;
-      }
-      size--;
-      return current.value()->data;
-    }
     std::optional<T> pop_front() {
-      if (!head) {
-        return std::nullopt;
-      }
-
-      auto current = head;
-      head = current.value()->next;
-      size--;
-      return current.value()->data;
+      return pop_front_node();
     }
-    std::optional<T> remove_at(size_t index) {
-      if (index >= size) {
-        return std::nullopt;
-      }
 
-      if (index == 0) {
-        return pop_front();
-      }
-
-      if (index == size - 1) {
-        return pop_back();
-      }
-
-      auto current = head;
-      std::optional<std::shared_ptr<Node>> prev = std::nullopt;
-      for (size_t i = 0; i < index; i++) {
-        prev = current;
-        current = current.value()->next;
-      }
-
-      prev.value()->next = current.value()->next;
-      size--;
-      return current.value()->data;
-    }
-    std::optional<T> remove(const T& data) {
-      auto current = head;
-      std::optional<std::shared_ptr<Node>> prev = std::nullopt;
-      while (current) {
-        if (current.value()->data == data) {
-          if (prev) {
-            prev.value()->next = current.value()->next;
-          }
-          else {
-            head = current.value()->next;
-          }
-          size--;
-          return current.value()->data;
-        }
-        prev = current;
-        current = current.value()->next;
-      }
-      return std::nullopt;
-    }
 
     size_t len() const {
       return size;
@@ -353,6 +198,76 @@ namespace dsun {
     Iterator end() const {
       return Iterator(std::nullopt);
     }
+  private:
+
+    void push_back_node(node_ptr_opt node) {
+      if (is_empty()) {
+        head = node;
+        tail = node;
+      }
+      else {
+        tail.value()->next = node;
+        node.value()->prev = tail;
+        tail = node;
+      }
+      size++;
+    }
+
+    std::optional<T> pop_back_node() {
+      if (is_empty()) {
+        return std::nullopt;
+      }
+      auto data = tail.value()->data;
+      tail = tail.value()->prev;
+      if (tail.has_value()) {
+        tail.value()->next = std::nullopt;
+      }
+      size--;
+      return std::optional<T>(data);
+    }
+
+    void push_front_node(node_ptr_opt node) {
+      if (is_empty()) {
+        head = node;
+        tail = node;
+      }
+      else {
+        head.value()->prev = node;
+        node.value()->next = head;
+        head = node;
+      }
+      size++;
+    }
+
+    std::optional<T> pop_front_node() {
+      if (is_empty()) {
+        return std::nullopt;
+      }
+      auto data = head.value()->data;
+      head = head.value()->next;
+      if (head.has_value()) {
+        head.value()->prev = std::nullopt;
+      }
+      size--;
+      return std::optional<T>(data);
+    }
+
+    void unlink_node(node_ptr_opt node) {
+      if (node.value()->prev.has_value()) {
+        node.value()->prev.value()->next = node.value()->next;
+      }
+      if (node.value()->next.has_value()) {
+        node.value()->next.value()->prev = node.value()->prev;
+      }
+    }
+
+    void link_node_in_the_middle(node_ptr_opt node, node_ptr_opt prev, node_ptr_opt next) {
+      node.value()->prev = prev;
+      node.value()->next = next;
+      prev.value()->next = node;
+      next.value()->prev = node;
+    }
+
   };
 }
 
