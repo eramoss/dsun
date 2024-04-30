@@ -9,4 +9,5 @@ CMakeCache.txt
 CTestTestfile.cmake
 /build/
 /lib/
+*.bin
 __pycache__/
