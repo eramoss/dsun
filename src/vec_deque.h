@@ -56,6 +56,36 @@ public:
     return buffer_read(old_head);
   }
 
+  void insert(uint32_t index, T value) {
+    if (index > len) {
+      throw std::out_of_range("Index out of bounds");
+    }
+    if (is_empty() || index == 0) {
+      push_front(value);
+      return;
+    }
+    if (index == len) {
+      push_back(value);
+      return;
+    }
+    if (is_full()) {
+      grow();
+    }
+    if (index < len / 2) {
+      head = wrap_sub(head, 1);
+      for (uint32_t i = 0; i < index; ++i) {
+        buffer_write(wrap_add(head, i), buffer_read(wrap_add(head, i + 1)));
+      }
+    }
+    else {
+      for (uint32_t i = len; i > index; --i) {
+        buffer_write(to_physical_idx(i), buffer_read(to_physical_idx(i - 1)));
+      }
+    }
+    buffer_write(to_physical_idx(index), value);
+    len++;
+  }
+
   T* make_contiguous() {
     if (is_contiguous()) {
       return buf.as_slice().get() + head;

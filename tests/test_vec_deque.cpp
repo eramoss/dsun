@@ -118,3 +118,59 @@ TEST(VecDequeTest, PopFrontUntilEmpty) {
   EXPECT_EQ(deque.size(), 0);
   EXPECT_TRUE(deque.is_empty());
 }
+
+TEST(VecDequeTest, insertEmpty) {
+  VecDeque<int> deque;
+  deque.insert(0, 1);
+  EXPECT_EQ(deque.size(), 1);
+  EXPECT_EQ(deque[0], 1);
+}
+
+TEST(VecDequeTest, insertFront) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  deque.insert(0, 2);
+  EXPECT_EQ(deque.size(), 2);
+  EXPECT_EQ(deque[0], 2);
+  EXPECT_EQ(deque[1], 1);
+}
+
+TEST(VecDequeTest, insertBack) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  deque.push_back(2);
+  deque.insert(2, 3);
+  EXPECT_EQ(deque.size(), 3);
+  EXPECT_EQ(deque[1], 2);
+  EXPECT_EQ(deque[2], 3);
+}
+
+TEST(VecDequeTest, insertMiddle) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  deque.push_back(3);
+  deque.insert(1, 2);
+  EXPECT_EQ(deque.size(), 3);
+  EXPECT_EQ(deque[0], 1);
+  EXPECT_EQ(deque[1], 2);
+  EXPECT_EQ(deque[2], 3);
+}
+
+TEST(VecDequeTest, insertFullCap) {
+  VecDeque<int> deque = VecDeque<int>::with_capacity(3);
+  deque.push_back(1);
+  deque.push_back(2);
+  deque.push_back(3);
+  deque.insert(1, 4);
+  EXPECT_EQ(deque.size(), 4);
+  EXPECT_EQ(deque[0], 1);
+  EXPECT_EQ(deque[1], 4);
+  EXPECT_EQ(deque[2], 2);
+  EXPECT_EQ(deque[3], 3);
+}
+
+TEST(VecDequeTest, insertOutOfRange) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  EXPECT_THROW(deque.insert(2, 2), std::out_of_range);
+}
