@@ -174,3 +174,27 @@ TEST(VecDequeTest, insertOutOfRange) {
   deque.push_back(1);
   EXPECT_THROW(deque.insert(2, 2), std::out_of_range);
 }
+
+TEST(VecDequeTest, RemoveInRange) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  deque.push_back(2);
+  deque.push_back(3);
+  EXPECT_EQ(deque.remove(1), std::optional<int>(2));
+  EXPECT_EQ(deque.remove(0), std::optional<int>(1));
+  EXPECT_EQ(deque.remove(0), std::optional<int>(3));
+}
+
+TEST(VecDequeTest, RemoveOutOfRange) {
+  VecDeque<int> deque;
+  deque.push_back(1);
+  deque.push_back(2);
+  deque.push_back(3);
+  EXPECT_EQ(deque.remove(3), std::nullopt);
+  EXPECT_EQ(deque.remove(4), std::nullopt);
+}
+
+TEST(VecDequeTest, RemoveInEmptyDeque) {
+  VecDeque<int> deque;
+  EXPECT_EQ(deque.remove(0), std::nullopt);
+}

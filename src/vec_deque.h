@@ -82,6 +82,26 @@ public:
     len++;
   }
 
+  std::optional<T> remove(uint32_t index) {
+    if (index >= len || is_empty()) {
+      return std::nullopt;
+    }
+    auto value = buffer_read(to_physical_idx(index));
+    if (index < len / 2) {
+      for (uint32_t i = index; i > 0; --i) {
+        buffer_write(to_physical_idx(i), buffer_read(to_physical_idx(i - 1)));
+      }
+      head = wrap_add(head, 1);
+    }
+    else {
+      for (uint32_t i = index; i < len - 1; ++i) {
+        buffer_write(to_physical_idx(i), buffer_read(to_physical_idx(i + 1)));
+      }
+    }
+    len--;
+    return value;
+  }
+
   T* make_contiguous() {
     if (is_contiguous()) {
       return buf.as_slice().get() + head;
