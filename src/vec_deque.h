@@ -72,16 +72,12 @@ public:
       grow();
     }
     if (index < len / 2) {
-      head = wrap_sub(head, 1);
-      for (uint32_t i = 0; i < index; ++i) {
-        buffer_write(wrap_add(head, i), buffer_read(wrap_add(head, i + 1)));
-      }
+      shift_elements_left(index);
     }
     else {
-      for (uint32_t i = len; i > index; --i) {
-        buffer_write(to_physical_idx(i), buffer_read(to_physical_idx(i - 1)));
-      }
+      shift_elements_right(index);
     }
+
     buffer_write(to_physical_idx(index), value);
     len++;
   }
@@ -136,6 +132,7 @@ public:
   }
 
   /*Helpers*/
+private:
   void grow() {
     buffer_resize(capacity() == 0 ? 1 : capacity() * 2);
   }
@@ -179,6 +176,19 @@ public:
 
   uint32_t to_physical_idx(uint32_t index) const {
     return wrap_add(head, index);
+  }
+
+  void shift_elements_left(uint32_t index) {
+    head = wrap_sub(head, 1);
+    for (uint32_t i = 0; i < index; ++i) {
+      buffer_write(wrap_add(head, i), buffer_read(wrap_add(head, i + 1)));
+    }
+  }
+
+  void shift_elements_right(uint32_t index) {
+    for (uint32_t i = len; i > index; --i) {
+      buffer_write(to_physical_idx(i), buffer_read(to_physical_idx(i - 1)));
+    }
   }
 
 };
