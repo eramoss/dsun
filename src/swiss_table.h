@@ -4,7 +4,7 @@
 #include <concepts>
 #include <functional>
 #include <iostream>
-#include <emmintrin.h>
+#include <immintrin.h>
 #include <bit>
 
 namespace SwissTables {
