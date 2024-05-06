@@ -125,7 +125,7 @@ namespace SwissTables {
     struct Group {
       __m128i data;
 
-      BitMask match_byte(u_int8_t byte) {
+      BitMask match_byte(uint8_t byte) {
         auto cmp = _mm_cmpeq_epi8(data, _mm_set1_epi8(byte));
         return BitMask{ _mm_movemask_epi8(cmp) };
       }
