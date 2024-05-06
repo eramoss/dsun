@@ -89,7 +89,7 @@ namespace SwissTables {
       }
 
       uint32_t trailing_zeros() const {
-        TrailingZeros(mask);
+        return TrailingZeros(mask);
       }
       uint32_t highest_bit_set() const {
         return static_cast<uint32_t>(std::bit_width(mask) - 1);
@@ -98,7 +98,9 @@ namespace SwissTables {
       uint32_t lowest_bit_set() const {
         return trailing_zeros();
       }
-
+      explicit operator bool() const {
+        return this->mask != 0;
+      }
       using iterator = BitMask;
       using const_iterator = BitMask;
       BitMask& operator++() {
@@ -113,6 +115,9 @@ namespace SwissTables {
       }
       BitMask end() const {
         return BitMask(0);
+      }
+      bool operator!=(const BitMask& other) const {
+        return mask != other.mask;
       }
     };
 
@@ -140,6 +145,11 @@ namespace SwissTables {
       BitMask match_full() {
         return match_empty_or_deleted().invert();
       }
+
+
+      static Group load(char* ptr) {
+        return Group{ _mm_loadu_si128(reinterpret_cast<__m128i*>(ptr)) };
+      }
     };
 
   }
@@ -157,6 +167,7 @@ namespace SwissTables {
     Entry* entries_;
     size_t capacity_;
     size_t len_ = 0;
+    size_t num_groups_ = 0;
 
 
   public:
@@ -172,15 +183,18 @@ namespace SwissTables {
     }
 
     V* find(const K& key, size_t hash) {
-      size_t pos_ = H1(hash) % capacity_;
+      size_t group = H1(hash) % num_groups_;
       while (true) {
-        if (H2(hash) == ctrl_[pos_] && entries_[pos_].key == key) {
-          return &entries_[pos_].value;
+        Group g = Group::load(ctrl_ + group * 16);
+        for (auto bit : g.match_byte(H2(hash))) {
+          if (entries_[group * 16 + bit].key == key) {
+            return &entries_[group * 16 + bit].value;
+          }
         }
-        if (ctrl_[pos_] == Empty) {
+        if (g.match_empty()) {
           return nullptr;
         }
-        pos_ = pos_ + 1 % capacity_;
+        group = (group + 1) % num_groups_;
       }
     }
 
@@ -209,6 +223,7 @@ namespace SwissTables {
       size_t pos_ = find_insert_slot(hash);
       ctrl_[pos_] = H2(hash);
       entries_[pos_] = { key, value };
+      num_groups_ = (len_ + 15) / 16;
       len_++;
     }
 

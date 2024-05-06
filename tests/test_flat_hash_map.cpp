@@ -35,3 +35,13 @@ TEST(FlatHashMap, insert_and_find_with_rehash) {
   EXPECT_EQ(*map.find(3), 4);
   EXPECT_EQ(*map.find(4), 5);
 }
+
+TEST(FlatHashMap, insert_and_multiple_rehash) {
+  FlatHashMap<int, int> map;
+  for (int i = 0; i < 1000; i++) {
+    map.insert(i, i);
+  }
+  for (int i = 0; i < 1000; i++) {
+    EXPECT_EQ(*map.find(i), i);
+  }
+}
