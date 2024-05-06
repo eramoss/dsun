@@ -35,6 +35,10 @@ namespace SwissTables {
       auto top7 = hash >> (sizeof(size_t) * 8 - 7);
       return (ctrl_t)(top7 & 0x7F);
     }
+    template <typename T>
+    uint32_t TrailingZeros(T x) {
+      return static_cast<uint32_t>(std::countr_zero(x));
+    }
 
 
     // in future should be implemented as a hash that can
@@ -49,14 +53,67 @@ namespace SwissTables {
     size_t swiss_hash(const K& key) {
       return std::hash<K>{}(key);
     }
+    class NonZeroUnsignedInt {
+    private:
+      unsigned int value;
+
+    public:
+      NonZeroUnsignedInt(unsigned int val) {
+        if (val == 0) {
+          std::cerr << "Error: Value cannot be zero." << std::endl;
+          value = 1; // Default to 1 if zero is provided
+        }
+        else {
+          value = val;
+        }
+      }
+      unsigned int getValue() const {
+        return value;
+      }
+      void setValue(unsigned int val) {
+        if (val == 0) {
+          std::cerr << "Error: Value cannot be zero." << std::endl;
+          return;
+        }
+        value = val;
+      }
+    };
     const uint64_t BITMASK_MASK = 0x8080808080808080;
+    typedef NonZeroUnsignedInt non_zero_bit_mask;
     struct BitMask {
-      uint64_t mask;
+      uint32_t mask;
       BitMask() = default;
       BitMask(int mask) : mask(mask) {}
 
       BitMask invert() {
-        return BitMask{ mask ^ BITMASK_MASK };
+        return BitMask{ static_cast<int>(mask ^ BITMASK_MASK) };
+      }
+
+      uint32_t trailing_zeros() const {
+        TrailingZeros(mask);
+      }
+      uint32_t highest_bit_set() const {
+        return static_cast<uint32_t>(std::bit_width(mask) - 1);
+      }
+
+      uint32_t lowest_bit_set() const {
+        return trailing_zeros();
+      }
+
+      using iterator = BitMask;
+      using const_iterator = BitMask;
+      BitMask& operator++() {
+        mask &= mask - 1;
+        return *this;
+      }
+      uint32_t operator*() const {
+        return lowest_bit_set();
+      }
+      BitMask begin() const {
+        return *this;
+      }
+      BitMask end() const {
+        return BitMask(0);
       }
     };
 
