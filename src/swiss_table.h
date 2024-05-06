@@ -34,6 +34,20 @@ namespace SwissTables {
       return (ctrl_t)(top7 & 0x7F);
     }
 
+
+    // in future should be implemented as a hash that can
+    // distribute the entropy uniformly
+    // if the entropy is distributed in the last 7 bits at most
+    // the ctrl bytes will have more collisions
+    // if the entropy is distributed in the first 57 bits at most
+    // the table will have more collisions
+    // [1,2,3,4,5...57 bits][1,2,3...7 bits]
+    //      raw table           metadata
+    template <Hashable K>
+    size_t swiss_hash(const K& key) {
+      return std::hash<K>{}(key);
+    }
+
   }
 
 
@@ -77,7 +91,7 @@ namespace SwissTables {
     }
 
     V* find(const K& key) {
-      return find(key, std::hash<K>{}(key));
+      return find(key, swiss_hash(key));
     }
 
 
@@ -97,7 +111,7 @@ namespace SwissTables {
       if (len_ * 2 > capacity_) {
         rehash();
       }
-      size_t hash = std::hash<K>{}(key);
+      size_t hash = swiss_hash(key);
       size_t pos_ = find_insert_slot(hash);
       ctrl_[pos_] = H2(hash);
       entries_[pos_] = { key, value };
@@ -117,7 +131,7 @@ namespace SwissTables {
         if (ctrl_[i] == Empty || ctrl_[i] == Deleted) {
           continue;
         }
-        size_t hash = std::hash<K>{}(entries_[i].key);
+        size_t hash = swiss_hash(entries_[i].key);
         size_t pos_ = H1(hash) % capacity_;
 
         while (new_ctrl[pos_] != Empty) {
