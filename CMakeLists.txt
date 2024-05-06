@@ -10,6 +10,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++20")
 
+IF(MSVC)
+   ADD_DEFINITIONS(/arch:SSE)
+ENDIF(MSVC)
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 add_library(dsun STATIC src/dsun.h)
