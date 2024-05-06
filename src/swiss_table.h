@@ -14,10 +14,15 @@ namespace SwissTables {
   };
   namespace {
     typedef char ctrl_t;
+
+    // ctrl_t is a 8-bit type
+    // this is needed to be added SIMD instructions in the future
+    // the first bit is used to indicate the status of the slot
+    // the rest of the bits are used to store the top 7 bits of the hash
     enum Ctrl : ctrl_t {
       Empty = -128, // 0b10000000
       Deleted = -2, // 0b11111110
-      Sentinel = -1, // 0b11111111
+      Sentinel = -1, // 0b111111118
       // Full = 0b0xxxxxxx
     };
 
@@ -104,9 +109,9 @@ namespace SwissTables {
   private:
     void rehash() {
       size_t new_capacity = capacity_ * 2;
-      ctrl_t* new_ctrl_bytes = new ctrl_t[new_capacity];
+      ctrl_t* new_ctrl = new ctrl_t[new_capacity];
       Entry* new_entries = new Entry[new_capacity];
-      std::fill(new_ctrl_bytes, new_ctrl_bytes + new_capacity, Empty);
+      std::fill(new_ctrl, new_ctrl + new_capacity, Empty);
 
       for (size_t i = 0; i < capacity_; i++) {
         if (ctrl_[i] == Empty || ctrl_[i] == Deleted) {
@@ -115,17 +120,17 @@ namespace SwissTables {
         size_t hash = std::hash<K>{}(entries_[i].key);
         size_t pos_ = H1(hash) % capacity_;
 
-        while (new_ctrl_bytes[pos_] != Empty) {
+        while (new_ctrl[pos_] != Empty) {
           pos_ = (pos_ + 1) % new_capacity;
         }
 
         new_entries[pos_] = entries_[i];
-        new_ctrl_bytes[pos_] = ctrl_[i];
+        new_ctrl[pos_] = ctrl_[i];
       }
 
       delete[] ctrl_;
       delete[] entries_;
-      ctrl_ = new_ctrl_bytes;
+      ctrl_ = new_ctrl;
       entries_ = new_entries;
       capacity_ = new_capacity;
     }
