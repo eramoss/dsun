@@ -16,7 +16,6 @@ namespace SwissTables {
   };
   namespace {
     typedef char ctrl_t;
-
     // ctrl_t is a 8-bit type
     // this is needed to be added SIMD instructions in the future
     // the first bit is used to indicate the status of the slot
@@ -26,7 +25,6 @@ namespace SwissTables {
       Deleted = -2, // 0b11111110
       // Full = 0b0xxxxxxx
     };
-
     size_t H1(size_t hash) {
       return hash >> 7;
     }
@@ -38,7 +36,6 @@ namespace SwissTables {
     uint32_t TrailingZeros(T x) {
       return static_cast<uint32_t>(std::countr_zero(x));
     }
-
 
     // in future should be implemented as a hash that can
     // distribute the entropy uniformly
@@ -94,7 +91,6 @@ namespace SwissTables {
       uint32_t highest_bit_set() const {
         return static_cast<uint32_t>(std::bit_width(mask) - 1);
       }
-
       uint32_t lowest_bit_set() const {
         return trailing_zeros();
       }
@@ -146,15 +142,12 @@ namespace SwissTables {
         return match_empty_or_deleted().invert();
       }
 
-
       static Group load(char* ptr) {
         return Group{ _mm_loadu_si128(reinterpret_cast<__m128i*>(ptr)) };
       }
     };
 
   }
-
-
   template <Hashable K, typename V>
   class FlatHashMap {
   private:
@@ -168,8 +161,6 @@ namespace SwissTables {
     size_t capacity_;
     size_t len_ = 0;
     size_t num_groups_ = 0;
-
-
   public:
     FlatHashMap(size_t capacity_ = 16) : capacity_(capacity_) {
       ctrl_ = new ctrl_t[capacity_];
@@ -202,7 +193,6 @@ namespace SwissTables {
       return find(key, swiss_hash(key));
     }
 
-
     // this function need at least one empty slot or deleted slot
     // if there is no empty slot, it will never returns
     size_t find_insert_slot(size_t hash) {
@@ -226,8 +216,6 @@ namespace SwissTables {
       num_groups_ = (len_ + 15) / 16;
       len_++;
     }
-
-
 
   private:
     void rehash() {
@@ -258,9 +246,6 @@ namespace SwissTables {
       capacity_ = new_capacity;
     }
   };
-
-
-
 }
 
 #endif // DSUN_SWISSTABLE_H
