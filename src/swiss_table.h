@@ -4,6 +4,8 @@
 #include <concepts>
 #include <functional>
 #include <iostream>
+#include <emmintrin.h>
+
 namespace SwissTables {
 
   template <typename T>
@@ -47,6 +49,42 @@ namespace SwissTables {
     size_t swiss_hash(const K& key) {
       return std::hash<K>{}(key);
     }
+    const uint64_t BITMASK_MASK = 0x8080808080808080;
+    struct BitMask {
+      uint64_t mask;
+      BitMask() = default;
+      BitMask(int mask) : mask(mask) {}
+
+      BitMask invert() {
+        return BitMask{ mask ^ BITMASK_MASK };
+      }
+    };
+
+    // abstraction over a group of control bytes which can be scanned in
+    // parallel.
+    //
+    // this implementation uses a 128-bit SSE value.
+    struct Group {
+      __m128i data;
+
+      BitMask match_byte(u_int8_t byte) {
+        auto cmp = _mm_cmpeq_epi8(data, _mm_set1_epi8(byte));
+        return BitMask{ _mm_movemask_epi8(cmp) };
+      }
+
+      BitMask match_empty() {
+        return match_byte(Empty);
+      }
+
+      BitMask match_empty_or_deleted() {
+        // A byte is EMPTY or DELETED if the high bit is set
+        return BitMask{ _mm_movemask_epi8(data) };
+      }
+
+      BitMask match_full() {
+        return match_empty_or_deleted().invert();
+      }
+    };
 
   }
 
