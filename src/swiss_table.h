@@ -5,7 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <optional>
-#include <immintrin.h>
+#include <xmmintrin.h>
 #include <bit>
 
 namespace SwissTables {
