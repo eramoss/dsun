@@ -24,7 +24,6 @@ namespace SwissTables {
     enum Ctrl : ctrl_t {
       Empty = -128, // 0b10000000
       Deleted = -2, // 0b11111110
-      Sentinel = -1, // 0b111111118
       // Full = 0b0xxxxxxx
     };
 
