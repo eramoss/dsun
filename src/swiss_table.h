@@ -4,6 +4,7 @@
 #include <concepts>
 #include <functional>
 #include <iostream>
+#include <optional>
 #include <immintrin.h>
 #include <bit>
 
@@ -190,8 +191,11 @@ namespace SwissTables {
       }
     }
 
-    V* find(const K& key) {
-      return find(key, swiss_hash(key));
+    std::optional<V> get(const K& key) {
+      if (auto* value = find(key, swiss_hash(key))) {
+        return *value;
+      }
+      return std::nullopt;
     }
 
     // this function need at least one empty slot or deleted slot
