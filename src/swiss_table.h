@@ -4,7 +4,15 @@
 #include <concepts>
 #include <functional>
 #include <iostream>
-#include <emmintrin.h>
+#include <optional>
+
+#ifdef _MSC_VER
+#include <intrin.h>
+#endif
+#ifndef _MSC_VER
+#include <immintrin.h>
+#endif
+#include <bit>
 
 namespace SwissTables {
 
@@ -15,18 +23,15 @@ namespace SwissTables {
     } -> std::convertible_to<std::size_t>;
   };
   namespace {
-    typedef char ctrl_t;
-
     // ctrl_t is a 8-bit type
     // this is needed to be added SIMD instructions in the future
     // the first bit is used to indicate the status of the slot
     // the rest of the bits are used to store the top 7 bits of the hash
-    enum Ctrl : ctrl_t {
+    enum class ctrl_t : int8_t {
       Empty = -128, // 0b10000000
       Deleted = -2, // 0b11111110
       // Full = 0b0xxxxxxx
     };
-
     size_t H1(size_t hash) {
       return hash >> 7;
     }
@@ -38,7 +43,6 @@ namespace SwissTables {
     uint32_t TrailingZeros(T x) {
       return static_cast<uint32_t>(std::countr_zero(x));
     }
-
 
     // in future should be implemented as a hash that can
     // distribute the entropy uniformly
@@ -94,7 +98,6 @@ namespace SwissTables {
       uint32_t highest_bit_set() const {
         return static_cast<uint32_t>(std::bit_width(mask) - 1);
       }
-
       uint32_t lowest_bit_set() const {
         return trailing_zeros();
       }
@@ -128,13 +131,13 @@ namespace SwissTables {
     struct Group {
       __m128i data;
 
-      BitMask match_byte(u_int8_t byte) {
+      BitMask match_byte(int8_t byte) {
         auto cmp = _mm_cmpeq_epi8(data, _mm_set1_epi8(byte));
         return BitMask{ _mm_movemask_epi8(cmp) };
       }
 
       BitMask match_empty() {
-        return match_byte(Empty);
+        return match_byte((int8_t)ctrl_t::Empty);
       }
 
       BitMask match_empty_or_deleted() {
@@ -146,15 +149,12 @@ namespace SwissTables {
         return match_empty_or_deleted().invert();
       }
 
-
-      static Group load(char* ptr) {
-        return Group{ _mm_loadu_si128(reinterpret_cast<__m128i*>(ptr)) };
+      static Group load(const ctrl_t* ptr) {
+        return Group{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(ptr)) };
       }
     };
 
   }
-
-
   template <Hashable K, typename V>
   class FlatHashMap {
   private:
@@ -168,13 +168,11 @@ namespace SwissTables {
     size_t capacity_;
     size_t len_ = 0;
     size_t num_groups_ = 0;
-
-
   public:
     FlatHashMap(size_t capacity_ = 16) : capacity_(capacity_) {
       ctrl_ = new ctrl_t[capacity_];
       entries_ = new Entry[capacity_];
-      std::fill(ctrl_, ctrl_ + capacity_, Empty);
+      std::fill(ctrl_, ctrl_ + capacity_, ctrl_t::Empty);
     }
 
     ~FlatHashMap() {
@@ -186,7 +184,7 @@ namespace SwissTables {
       size_t group = H1(hash) % num_groups_;
       while (true) {
         Group g = Group::load(ctrl_ + group * 16);
-        for (auto bit : g.match_byte(H2(hash))) {
+        for (auto bit : g.match_byte((int8_t)H2(hash))) {
           if (entries_[group * 16 + bit].key == key) {
             return &entries_[group * 16 + bit].value;
           }
@@ -198,17 +196,19 @@ namespace SwissTables {
       }
     }
 
-    V* find(const K& key) {
-      return find(key, swiss_hash(key));
+    std::optional<V> get(const K& key) {
+      if (auto* value = find(key, swiss_hash(key))) {
+        return *value;
+      }
+      return std::nullopt;
     }
-
 
     // this function need at least one empty slot or deleted slot
     // if there is no empty slot, it will never returns
     size_t find_insert_slot(size_t hash) {
       size_t pos_ = H1(hash) % capacity_;
       while (true) {
-        if (ctrl_[pos_] == Empty || ctrl_[pos_] == Deleted) {
+        if (ctrl_[pos_] == ctrl_t::Empty || ctrl_[pos_] == ctrl_t::Deleted) {
           return pos_;
         }
         pos_ = pos_ + 1 % capacity_;
@@ -227,23 +227,21 @@ namespace SwissTables {
       len_++;
     }
 
-
-
   private:
     void rehash() {
       size_t new_capacity = capacity_ * 2;
       ctrl_t* new_ctrl = new ctrl_t[new_capacity];
       Entry* new_entries = new Entry[new_capacity];
-      std::fill(new_ctrl, new_ctrl + new_capacity, Empty);
+      std::fill(new_ctrl, new_ctrl + new_capacity, ctrl_t::Empty);
 
       for (size_t i = 0; i < capacity_; i++) {
-        if (ctrl_[i] == Empty || ctrl_[i] == Deleted) {
+        if (ctrl_[i] == ctrl_t::Empty || ctrl_[i] == ctrl_t::Deleted) {
           continue;
         }
         size_t hash = swiss_hash(entries_[i].key);
         size_t pos_ = H1(hash) % capacity_;
 
-        while (new_ctrl[pos_] != Empty) {
+        while (new_ctrl[pos_] != ctrl_t::Empty) {
           pos_ = (pos_ + 1) % new_capacity;
         }
 
@@ -258,9 +256,6 @@ namespace SwissTables {
       capacity_ = new_capacity;
     }
   };
-
-
-
 }
 
 #endif // DSUN_SWISSTABLE_H
