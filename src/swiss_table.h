@@ -23,12 +23,11 @@ namespace SwissTables {
     } -> std::convertible_to<std::size_t>;
   };
   namespace {
-    typedef int8_t ctrl_t;
     // ctrl_t is a 8-bit type
     // this is needed to be added SIMD instructions in the future
     // the first bit is used to indicate the status of the slot
     // the rest of the bits are used to store the top 7 bits of the hash
-    enum Ctrl : ctrl_t {
+    enum class ctrl_t : int8_t {
       Empty = -128, // 0b10000000
       Deleted = -2, // 0b11111110
       // Full = 0b0xxxxxxx
@@ -138,7 +137,7 @@ namespace SwissTables {
       }
 
       BitMask match_empty() {
-        return match_byte(Empty);
+        return match_byte((int8_t)ctrl_t::Empty);
       }
 
       BitMask match_empty_or_deleted() {
@@ -173,7 +172,7 @@ namespace SwissTables {
     FlatHashMap(size_t capacity_ = 16) : capacity_(capacity_) {
       ctrl_ = new ctrl_t[capacity_];
       entries_ = new Entry[capacity_];
-      std::fill(ctrl_, ctrl_ + capacity_, Empty);
+      std::fill(ctrl_, ctrl_ + capacity_, ctrl_t::Empty);
     }
 
     ~FlatHashMap() {
@@ -185,7 +184,7 @@ namespace SwissTables {
       size_t group = H1(hash) % num_groups_;
       while (true) {
         Group g = Group::load(ctrl_ + group * 16);
-        for (auto bit : g.match_byte(H2(hash))) {
+        for (auto bit : g.match_byte((int8_t)H2(hash))) {
           if (entries_[group * 16 + bit].key == key) {
             return &entries_[group * 16 + bit].value;
           }
@@ -209,7 +208,7 @@ namespace SwissTables {
     size_t find_insert_slot(size_t hash) {
       size_t pos_ = H1(hash) % capacity_;
       while (true) {
-        if (ctrl_[pos_] == Empty || ctrl_[pos_] == Deleted) {
+        if (ctrl_[pos_] == ctrl_t::Empty || ctrl_[pos_] == ctrl_t::Deleted) {
           return pos_;
         }
         pos_ = pos_ + 1 % capacity_;
@@ -233,16 +232,16 @@ namespace SwissTables {
       size_t new_capacity = capacity_ * 2;
       ctrl_t* new_ctrl = new ctrl_t[new_capacity];
       Entry* new_entries = new Entry[new_capacity];
-      std::fill(new_ctrl, new_ctrl + new_capacity, Empty);
+      std::fill(new_ctrl, new_ctrl + new_capacity, ctrl_t::Empty);
 
       for (size_t i = 0; i < capacity_; i++) {
-        if (ctrl_[i] == Empty || ctrl_[i] == Deleted) {
+        if (ctrl_[i] == ctrl_t::Empty || ctrl_[i] == ctrl_t::Deleted) {
           continue;
         }
         size_t hash = swiss_hash(entries_[i].key);
         size_t pos_ = H1(hash) % capacity_;
 
-        while (new_ctrl[pos_] != Empty) {
+        while (new_ctrl[pos_] != ctrl_t::Empty) {
           pos_ = (pos_ + 1) % new_capacity;
         }
 
