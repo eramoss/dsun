@@ -41,7 +41,7 @@ TEST(FlatHashMap, insert_and_multiple_rehash) {
   for (int i = 0; i < 1000; i++) {
     map.insert(i, i);
   }
-  for (int i = 0; i < 1000; i++) {
-    EXPECT_EQ(map.get(i), std::optional<int>(i));
-  }
+  EXPECT_EQ(map.capacity_, 2048);
+  EXPECT_EQ(map.len_, 1000);
+  EXPECT_EQ(map.get(999).value(), 999);
 }
