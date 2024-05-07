@@ -10,9 +10,8 @@
 #include <intrin.h>
 #endif
 #ifndef _MSC_VER
-#include <x86intrin.h>
+#include <immintrin.h>
 #endif
-
 #include <bit>
 
 namespace SwissTables {
@@ -130,8 +129,8 @@ namespace SwissTables {
     // parallel.
     //
     // this implementation uses a 128-bit SSE value.
-    struct Group {
-      __m128i data;
+    struct alignas(16) Group {
+      alignas(16) __m128i data;
 
       BitMask match_byte(uint8_t byte) {
         auto cmp = _mm_cmpeq_epi8(data, _mm_set1_epi8(byte));
@@ -152,7 +151,7 @@ namespace SwissTables {
       }
 
       static Group load(char* ptr) {
-        return Group{ _mm_loadu_si128(reinterpret_cast<__m128i*>(ptr)) };
+        return Group{ _mm_load_si128(reinterpret_cast<__m128i*>(ptr)) };
       }
     };
 
@@ -165,8 +164,8 @@ namespace SwissTables {
       V value;
     };
 
-    ctrl_t* ctrl_;
-    Entry* entries_;
+    alignas(16) ctrl_t* ctrl_;
+    alignas(16) Entry* entries_;
     size_t capacity_;
     size_t len_ = 0;
     size_t num_groups_ = 0;
@@ -232,8 +231,8 @@ namespace SwissTables {
   private:
     void rehash() {
       size_t new_capacity = capacity_ * 2;
-      ctrl_t* new_ctrl = new ctrl_t[new_capacity];
-      Entry* new_entries = new Entry[new_capacity];
+      alignas(16) ctrl_t* new_ctrl = new ctrl_t[new_capacity];
+      alignas(16) Entry* new_entries = new Entry[new_capacity];
       std::fill(new_ctrl, new_ctrl + new_capacity, Empty);
 
       for (size_t i = 0; i < capacity_; i++) {
