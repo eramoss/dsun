@@ -23,7 +23,7 @@ namespace SwissTables {
     } -> std::convertible_to<std::size_t>;
   };
   namespace {
-    typedef char ctrl_t;
+    typedef int8_t ctrl_t;
     // ctrl_t is a 8-bit type
     // this is needed to be added SIMD instructions in the future
     // the first bit is used to indicate the status of the slot
@@ -129,10 +129,10 @@ namespace SwissTables {
     // parallel.
     //
     // this implementation uses a 128-bit SSE value.
-    struct alignas(16) Group {
-      alignas(16) __m128i data;
+    struct Group {
+      __m128i data;
 
-      BitMask match_byte(uint8_t byte) {
+      BitMask match_byte(int8_t byte) {
         auto cmp = _mm_cmpeq_epi8(data, _mm_set1_epi8(byte));
         return BitMask{ _mm_movemask_epi8(cmp) };
       }
@@ -150,8 +150,8 @@ namespace SwissTables {
         return match_empty_or_deleted().invert();
       }
 
-      static Group load(char* ptr) {
-        return Group{ _mm_load_si128(reinterpret_cast<__m128i*>(ptr)) };
+      static Group load(const ctrl_t* ptr) {
+        return Group{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(ptr)) };
       }
     };
 
@@ -164,8 +164,8 @@ namespace SwissTables {
       V value;
     };
 
-    alignas(16) ctrl_t* ctrl_;
-    alignas(16) Entry* entries_;
+    ctrl_t* ctrl_;
+    Entry* entries_;
     size_t capacity_;
     size_t len_ = 0;
     size_t num_groups_ = 0;
@@ -231,8 +231,8 @@ namespace SwissTables {
   private:
     void rehash() {
       size_t new_capacity = capacity_ * 2;
-      alignas(16) ctrl_t* new_ctrl = new ctrl_t[new_capacity];
-      alignas(16) Entry* new_entries = new Entry[new_capacity];
+      ctrl_t* new_ctrl = new ctrl_t[new_capacity];
+      Entry* new_entries = new Entry[new_capacity];
       std::fill(new_ctrl, new_ctrl + new_capacity, Empty);
 
       for (size_t i = 0; i < capacity_; i++) {
