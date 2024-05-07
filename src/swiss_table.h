@@ -123,7 +123,10 @@ namespace SwissTables {
     // parallel.
     //
     // this implementation uses a 128-bit SSE value.
-    struct alignas(16) Group {
+#ifdef _MSC_VER
+#pragma pack(push, 16)
+#endif
+    struct Group {
       __m128i data;
 
       BitMask match_byte(uint8_t byte) {
@@ -148,6 +151,9 @@ namespace SwissTables {
         return Group{ _mm_loadu_si128(reinterpret_cast<__m128i*>(ptr)) };
       }
     };
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
   }
   template <Hashable K, typename V>
