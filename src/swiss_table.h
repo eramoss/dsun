@@ -123,7 +123,7 @@ namespace SwissTables {
     // parallel.
     //
     // this implementation uses a 128-bit SSE value.
-    struct Group {
+    struct alignas(16) Group {
       __m128i data;
 
       BitMask match_byte(uint8_t byte) {
