@@ -6,6 +6,23 @@
 #include <iostream>
 #include <optional>
 #include <immintrin.h>
+#ifdef _MSC_VER
+#warn "using slow alignment-debug SIMD instructions to work around MSVC/ICC limitations"
+// SSE4.1 MOVNTDQA doesn't do anything special on normal WB memory, only WC
+// On WB, it's just a slower MOVDQA, wasting an ALU uop.
+#define _mm_load_si128  _mm_stream_load_si128
+#define _mm_load_ps(ptr)  _mm_castsi128_ps(_mm_stream_load_si128((const __m128i*)ptr))
+#define _mm_load_pd(ptr)  _mm_castsi128_pd(_mm_stream_load_si128((const __m128i*)ptr))
+
+ // SSE1/2 MOVNTPS / PD / MOVNTDQ  evict data from cache if it was hot, and bypass cache
+#define _mm_store_ps  _mm_stream_ps       // SSE1 movntps
+#define _mm_store_pd  _mm_stream_pd       // SSE2 movntpd is a waste of space vs. the ps encoding, but whatever
+#define _mm_store_si128 _mm_stream_si128  // SSE2 movntdq
+
+// and repeat for _mm256_... versions with _mm256_castsi256_ps
+// and _mm512_... versions 
+// edit welcome if anyone tests this and adds those versions
+#endif
 #include <bit>
 
 namespace SwissTables {
@@ -123,9 +140,6 @@ namespace SwissTables {
     // parallel.
     //
     // this implementation uses a 128-bit SSE value.
-#ifdef _MSC_VER
-#pragma pack(push, 16)
-#endif
     struct Group {
       __m128i data;
 
@@ -151,9 +165,6 @@ namespace SwissTables {
         return Group{ _mm_loadu_si128(reinterpret_cast<__m128i*>(ptr)) };
       }
     };
-#ifdef _MSC_VER
-#pragma pack(pop)
-#endif
 
   }
   template <Hashable K, typename V>
