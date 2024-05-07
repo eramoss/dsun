@@ -7,7 +7,6 @@
 #include <optional>
 #include <immintrin.h>
 #ifdef _MSC_VER
-#warn "using slow alignment-debug SIMD instructions to work around MSVC/ICC limitations"
 // SSE4.1 MOVNTDQA doesn't do anything special on normal WB memory, only WC
 // On WB, it's just a slower MOVDQA, wasting an ALU uop.
 #define _mm_load_si128  _mm_stream_load_si128
