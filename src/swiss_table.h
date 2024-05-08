@@ -32,12 +32,25 @@ namespace SwissTables {
       Deleted = -2, // 0b11111110
       // Full = 0b0xxxxxxx
     };
-    size_t H1(size_t hash) {
-      return hash >> 7;
+
+    inline size_t PerTableSalt(const ctrl_t* ctrl) {
+      return reinterpret_cast<uintptr_t>(ctrl) >> 12;
     }
-    ctrl_t H2(size_t hash) {
-      auto top7 = hash >> (sizeof(size_t) * 8 - 7);
-      return (ctrl_t)(top7 & 0x7F);
+    inline size_t H1(size_t hash, const ctrl_t* ctrl) {
+      return (hash >> 7) ^ PerTableSalt(ctrl);
+    }
+
+    inline uint8_t H2(size_t hash) {
+      return hash & 0x7F;
+    }
+    inline bool IsEmpty(ctrl_t c) {
+      return c == ctrl_t::Empty;
+    }
+    inline bool IsFull(ctrl_t c) {
+      return c >= static_cast<ctrl_t>(0);
+    }
+    inline bool IsDeleted(ctrl_t c) {
+      return c == ctrl_t::Deleted;
     }
     template <typename T>
     uint32_t TrailingZeros(T x) {
@@ -54,60 +67,36 @@ namespace SwissTables {
     //      raw table           metadata
     template <Hashable K>
     size_t swiss_hash(const K& key) {
-      return std::hash<K>{}(key);
+      size_t hash = 5381;
+      auto k = key;
+      while ((int)k != 0) {
+        int remainder = key % 10;
+        hash = ((hash << 5) + hash) + remainder; // hash * 33 + remainder
+        k = k / 10;
+      }
+      return hash;
     }
-    class NonZeroUnsignedInt {
-    private:
-      unsigned int value;
-
-    public:
-      NonZeroUnsignedInt(unsigned int val) {
-        if (val == 0) {
-          std::cerr << "Error: Value cannot be zero." << std::endl;
-          value = 1; // Default to 1 if zero is provided
-        }
-        else {
-          value = val;
-        }
-      }
-      unsigned int getValue() const {
-        return value;
-      }
-      void setValue(unsigned int val) {
-        if (val == 0) {
-          std::cerr << "Error: Value cannot be zero." << std::endl;
-          return;
-        }
-        value = val;
-      }
-    };
-    const uint64_t BITMASK_MASK = 0x8080808080808080;
-    typedef NonZeroUnsignedInt non_zero_bit_mask;
     struct BitMask {
-      uint32_t mask;
+      uint16_t mask_;
       BitMask() = default;
-      BitMask(int mask) : mask(mask) {}
-
-      BitMask invert() {
-        return BitMask{ static_cast<int>(mask ^ BITMASK_MASK) };
-      }
+      BitMask(uint16_t mask) : mask_(mask) {}
 
       uint32_t trailing_zeros() const {
-        return TrailingZeros(mask);
+        return TrailingZeros(mask_);
       }
       uint32_t highest_bit_set() const {
-        return static_cast<uint32_t>(std::bit_width(mask) - 1);
+        return static_cast<uint32_t>(std::bit_width(mask_) - 1);
       }
       uint32_t lowest_bit_set() const {
         return trailing_zeros();
       }
       explicit operator bool() const {
-        return this->mask != 0;
+        return this->mask_ != 0;
       }
       using iterator = BitMask;
       using const_iterator = BitMask;
       BitMask& operator++() {
-        mask &= mask - 1;
+        mask_ &= mask_ - 1;
         return *this;
       }
       uint32_t operator*() const {
@@ -119,8 +108,12 @@ namespace SwissTables {
       BitMask end() const {
         return BitMask(0);
       }
-      bool operator!=(const BitMask& other) const {
-        return mask != other.mask;
+    private:
+      friend bool operator==(const BitMask& a, const BitMask& b) {
+        return a.mask_ == b.mask_;
+      }
+      friend bool operator!=(const BitMask& a, const BitMask& b) {
+        return a.mask_ != b.mask_;
       }
     };
 
@@ -132,23 +125,13 @@ namespace SwissTables {
       __m128i data;
 
       BitMask match_byte(int8_t byte) {
-        auto cmp = _mm_cmpeq_epi8(data, _mm_set1_epi8(byte));
-        return BitMask{ _mm_movemask_epi8(cmp) };
+        auto match = _mm_set1_epi8(static_cast<char>(byte));
+        return BitMask{ static_cast<uint16_t>(_mm_movemask_epi8(_mm_cmpeq_epi8(match, data))) };
       }
-
       BitMask match_empty() {
-        return match_byte((int8_t)ctrl_t::Empty);
+        auto match = _mm_set1_epi8(static_cast<char>(ctrl_t::Empty));
+        return BitMask{ static_cast<uint16_t>(_mm_movemask_epi8(_mm_cmpeq_epi8(match, data))) };
       }
-
-      BitMask match_empty_or_deleted() {
-        // A byte is EMPTY or DELETED if the high bit is set
-        return BitMask{ _mm_movemask_epi8(data) };
-      }
-
-      BitMask match_full() {
-        return match_empty_or_deleted().invert();
-      }
-
       static Group load(const ctrl_t* ptr) {
         return Group{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(ptr)) };
       }
@@ -158,102 +141,87 @@ namespace SwissTables {
   template <Hashable K, typename V>
   class FlatHashMap {
   private:
-    struct Entry {
+    struct slots_t {
       K key;
       V value;
     };
-
     ctrl_t* ctrl_;
-    Entry* entries_;
+    slots_t* slots_;
     size_t capacity_;
     size_t len_ = 0;
-    size_t num_groups_ = 0;
   public:
-    FlatHashMap(size_t capacity_ = 16) : capacity_(capacity_) {
+
+    FlatHashMap(size_t capacity = 16) : capacity_(capacity) {
       ctrl_ = new ctrl_t[capacity_];
-      entries_ = new Entry[capacity_];
+      slots_ = new slots_t[capacity_];
       std::fill(ctrl_, ctrl_ + capacity_, ctrl_t::Empty);
     }
 
     ~FlatHashMap() {
       delete[] ctrl_;
-      delete[] entries_;
+      delete[] slots_;
     }
 
-    V* find(const K& key, size_t hash) {
-      size_t group = H1(hash) % num_groups_;
-      while (true) {
-        Group g = Group::load(ctrl_ + group * 16);
-        for (auto bit : g.match_byte((int8_t)H2(hash))) {
-          if (entries_[group * 16 + bit].key == key) {
-            return &entries_[group * 16 + bit].value;
-          }
-        }
-        if (g.match_empty()) {
-          return nullptr;
-        }
-        group = (group + 1) % num_groups_;
-      }
-    }
-
-    std::optional<V> get(const K& key) {
-      if (auto* value = find(key, swiss_hash(key))) {
-        return *value;
-      }
-      return std::nullopt;
-    }
-
-    // this function need at least one empty slot or deleted slot
-    // if there is no empty slot, it will never returns
-    size_t find_insert_slot(size_t hash) {
-      size_t pos_ = H1(hash) % capacity_;
-      while (true) {
-        if (ctrl_[pos_] == ctrl_t::Empty || ctrl_[pos_] == ctrl_t::Deleted) {
-          return pos_;
-        }
-        pos_ = pos_ + 1 % capacity_;
-      }
-    }
-
-    void insert(const K& key, const V& value) {
-      if (len_ * 2 > capacity_) {
-        rehash();
-      }
+    bool insert(const K& key, const V& value) {
       size_t hash = swiss_hash(key);
-      size_t pos_ = find_insert_slot(hash);
-      ctrl_[pos_] = H2(hash);
-      entries_[pos_] = { key, value };
-      num_groups_ = (len_ + 15) / 16;
+      size_t index = hash % capacity_;
+      size_t perturb = hash;
+      size_t i = 0;
+      while (!IsEmpty(ctrl_[index]) && !IsDeleted(ctrl_[index])) {
+        if (slots_[index].key == key) {
+          return false;
+        }
+        i++;
+        index = (index * 5 + 1 + i) % capacity_;
+        perturb >>= 5;
+        index = (index + perturb) % capacity_;
+      }
+      slots_[index].key = key;
+      slots_[index].value = value;
+      ctrl_[index] = static_cast<ctrl_t>(hash >> 7);
       len_++;
+      return true;
     }
 
-  private:
-    void rehash() {
-      size_t new_capacity = capacity_ * 2;
-      ctrl_t* new_ctrl = new ctrl_t[new_capacity];
-      Entry* new_entries = new Entry[new_capacity];
-      std::fill(new_ctrl, new_ctrl + new_capacity, ctrl_t::Empty);
-
-      for (size_t i = 0; i < capacity_; i++) {
-        if (ctrl_[i] == ctrl_t::Empty || ctrl_[i] == ctrl_t::Deleted) {
-          continue;
-        }
-        size_t hash = swiss_hash(entries_[i].key);
-        size_t pos_ = H1(hash) % capacity_;
-
-        while (new_ctrl[pos_] != ctrl_t::Empty) {
-          pos_ = (pos_ + 1) % new_capacity;
-        }
-
-        new_entries[pos_] = entries_[i];
-        new_ctrl[pos_] = ctrl_[i];
+    class iterator {
+    private:
+      slots_t* slots_;
+      ctrl_t* ctrl_;
+      size_t index_;
+      size_t capacity_;
+    public:
+      iterator(slots_t* slots, ctrl_t* ctrl, size_t index, size_t capacity) : slots_(slots), ctrl_(ctrl), index_(index), capacity_(capacity) {}
+      iterator& operator++() {
+        do {
+          index_++;
+        } while (index_ < capacity_ && IsEmpty(ctrl_[index_]) || IsDeleted(ctrl_[index_]));
+        return *this;
       }
-
-      delete[] ctrl_;
-      delete[] entries_;
-      ctrl_ = new_ctrl;
-      entries_ = new_entries;
-      capacity_ = new_capacity;
+      slots_t& operator*() {
+        return slots_[index_];
+      }
+      slots_t* operator->() {
+        return &slots_[index_];
+      }
+      bool operator==(const iterator& other) const {
+        return index_ == other.index_;
+      }
+      bool operator!=(const iterator& other) const {
+        return !(*this == other);
+      }
+    };
+    iterator begin() const {
+      size_t index = 0;
+      while (index < capacity_ && (IsEmpty(ctrl_[index]) || IsDeleted(ctrl_[index]))) {
+        index++;
+      }
+      return iterator(slots_, ctrl_, index, capacity_);
+    }
+    iterator end() const {
+      return iterator(slots_, ctrl_, capacity_, capacity_);
+    }
+    iterator iterator_at(size_t index)const {
+      return iterator(slots_, ctrl_, index, capacity_);
     }
   };
 }
