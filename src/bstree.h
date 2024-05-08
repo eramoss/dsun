@@ -127,6 +127,21 @@ namespace dsun {
       return !root.has_value();
     }
 
+    template<typename Func>
+    void pre_order(Func f) {
+      pre_order_impl(root, f);
+    }
+
+    template<typename Func>
+    void in_order(Func f) {
+      in_order_impl(root, f);
+    }
+
+    template<typename Func>
+    void post_order(Func f) {
+      post_order_impl(root, f);
+    }
+
 
     ///  traverse find in the tree and apply the function f to the node that contains the value.
     ///  If the value is not found, apply the function f to the node where the value should be inserted.
@@ -182,6 +197,34 @@ namespace dsun {
         return 0;
       }
     }
+
+    template<typename Func>
+    void pre_order_impl(node_ptr_opt root, Func f) {
+      if (root.has_value()) {
+        f(root.value());
+        pre_order_impl(root.value()->left, f);
+        pre_order_impl(root.value()->right, f);
+      }
+    }
+
+    template<typename Func>
+    void in_order_impl(node_ptr_opt root, Func f) {
+      if (root.has_value()) {
+        in_order_impl(root.value()->left, f);
+        f(root.value());
+        in_order_impl(root.value()->right, f);
+      }
+    }
+
+    template<typename Func>
+    void post_order_impl(node_ptr_opt root, Func f) {
+      if (root.has_value()) {
+        post_order_impl(root.value()->left, f);
+        post_order_impl(root.value()->right, f);
+        f(root.value());
+      }
+    }
+
   };
 }
 
