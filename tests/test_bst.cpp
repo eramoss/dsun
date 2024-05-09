@@ -122,3 +122,54 @@ TEST(BSTreeTest, maxAndExtractSingle) {
   EXPECT_EQ(bst.extract_max(), std::optional<int>(5));
   EXPECT_EQ(bst.max(), std::nullopt);
 }
+
+TEST(BSTreeTest, preOrder) {
+  BSTree<int> bst;
+  bst.insert(5);
+  bst.insert(3);
+  bst.insert(7);
+  bst.insert(1);
+  bst.insert(4);
+  bst.insert(6);
+  bst.insert(8);
+  std::vector<int> expected = { 5, 3, 1, 4, 7, 6, 8 };
+  std::vector<int> result;
+  bst.pre_order([&](int value) {
+    result.push_back(value);
+    });
+  EXPECT_EQ(result, expected);
+}
+
+TEST(BSTreeTest, inOrder) {
+  BSTree<int> bst;
+  bst.insert(5);
+  bst.insert(3);
+  bst.insert(7);
+  bst.insert(1);
+  bst.insert(4);
+  bst.insert(6);
+  bst.insert(8);
+  std::vector<int> expected = { 1, 3, 4, 5, 6, 7, 8 };
+  std::vector<int> result;
+  bst.in_order([&](int value) {
+    result.push_back(value);
+    });
+  EXPECT_EQ(result, expected);
+}
+
+TEST(BSTreeTest, postOrder) {
+  BSTree<int> bst;
+  bst.insert(5);
+  bst.insert(3);
+  bst.insert(7);
+  bst.insert(1);
+  bst.insert(4);
+  bst.insert(6);
+  bst.insert(8);
+  std::vector<int> expected = { 1, 4, 3, 6, 8, 7, 5 };
+  std::vector<int> result;
+  bst.post_order([&](int value) {
+    result.push_back(value);
+    });
+  EXPECT_EQ(result, expected);
+}

@@ -201,7 +201,7 @@ namespace dsun {
     template<typename Func>
     void pre_order_impl(node_ptr_opt root, Func f) {
       if (root.has_value()) {
-        f(root.value());
+        f(root.value()->value);
         pre_order_impl(root.value()->left, f);
         pre_order_impl(root.value()->right, f);
       }
@@ -211,7 +211,7 @@ namespace dsun {
     void in_order_impl(node_ptr_opt root, Func f) {
       if (root.has_value()) {
         in_order_impl(root.value()->left, f);
-        f(root.value());
+        f(root.value()->value);
         in_order_impl(root.value()->right, f);
       }
     }
@@ -221,7 +221,7 @@ namespace dsun {
       if (root.has_value()) {
         post_order_impl(root.value()->left, f);
         post_order_impl(root.value()->right, f);
-        f(root.value());
+        f(root.value()->value);
       }
     }
 
