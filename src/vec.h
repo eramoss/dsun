@@ -87,7 +87,7 @@ namespace dsun {
             return this->get(0);
         }
         T& operator[](uint32_t index) const {
-            if (index >= length) {
+            if (index >= capacity()) {
                 throw std::out_of_range("Index out of bounds: " + dsun_utils::to_string(index));
             }
             return this->ptr.get()[index];
@@ -105,6 +105,9 @@ namespace dsun {
         }
         bool is_empty() {
             return length == 0;
+        }
+        void set_len(int len) {
+            length = len;
         }
         std::optional<uint32_t> index_of(T value) {
             for (uint32_t i = 0; i < length; i++) {
