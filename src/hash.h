@@ -63,6 +63,7 @@ namespace dsun {
       Node* new_node = new Node(key, value, nullptr);
       if (table.get(index).has_value() == false) {
         table.as_slice()[index] = new_node;
+        table.set_len(table.len() + 1);
         return;
       }
       Node* node = table.get(index).value();
@@ -80,6 +81,7 @@ namespace dsun {
       Node* node = table.get(index).value();
       if (node->key == key) {
         table.as_slice()[index] = node->next;
+        table.set_len(table.len() - 1);
         T value = node->value;
         delete node;
         return value;
@@ -171,7 +173,7 @@ namespace dsun {
 
       Entry& and_modify(std::function<void(T&)> f) {
         if (std::holds_alternative<Occupied>(entry)) {
-          f(std::get<Occupied>(entry).value);
+          f(*std::get<Occupied>(entry).base->get_mut(std::get<Occupied>(entry).key).value());
         }
         return *this;
       }
@@ -183,6 +185,60 @@ namespace dsun {
         return Entry(key, entry.value(), this);
       }
       return Entry(key, this);
+    }
+
+    class Iterator {
+    private:
+      Node* current;
+      dsun::Vec<Node*> table;
+      std::size_t index;
+
+    public:
+      Iterator(Node* current, dsun::Vec<Node*> table, std::size_t index) : current(current), table(table), index(index) {}
+
+      Iterator& operator++() {
+        if (current->next != nullptr) {
+          current = current->next;
+        }
+        else {
+          ++index;
+          while (index < table.capacity() && table[index] == nullptr) {
+            ++index;
+          }
+          if (index < table.capacity()) {
+            current = table[index];
+          }
+          else {
+            current = nullptr;
+          }
+        }
+        return *this;
+      }
+
+      Node& operator*() const {
+        return *current;
+      }
+
+      bool operator!=(const Iterator& other) const {
+        return current != other.current;
+      }
+    };
+
+    Iterator begin()const {
+      std::size_t index = 0;
+      while (index < table.capacity() && table[index] == nullptr) {
+        ++index;
+      }
+      if (index < table.capacity()) {
+        return Iterator(table[index], table, index);
+      }
+      else {
+        return end();
+      }
+    }
+
+    Iterator end() const {
+      return Iterator(nullptr, table, table.len());
     }
   };
 }
