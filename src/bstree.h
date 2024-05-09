@@ -10,15 +10,6 @@ namespace dsun {
   template <typename T>
   concept Comparable = requires(const T a, const T b) {
     {
-      a < b
-    } -> std::convertible_to<bool>;
-    {
-      a > b
-    } -> std::convertible_to<bool>;
-    {
-      a == b
-    } -> std::convertible_to<bool>;
-    {
       a <=> b
     } -> std::convertible_to<std::partial_ordering>;
 
@@ -62,12 +53,37 @@ namespace dsun {
         root = std::make_shared<Node>(value);
         return;
       }
+      if (allow_duplicates) return insert_d(value);
+
       traverse_find(&root, value, [&](node_ptr_opt* current) {
-        if (!allow_duplicates && current->has_value()) {
-          return;
-        }
         *current = std::make_shared<Node>(value);
         });
+    }
+
+    void insert_d(const T& value) {
+      if (!root) {
+        root = std::make_shared<Node>(value);
+        return;
+      }
+      std::shared_ptr<Node> current = *root;
+      std::shared_ptr<Node> parent = nullptr;
+      while (current) {
+        parent = current;
+        if (value < current->value) {
+          if (!current->left) {
+            current->left = std::make_shared<Node>(value);
+            return;
+          }
+          current = *current->left;
+        }
+        else {
+          if (!current->right) {
+            current->right = std::make_shared<Node>(value);
+            return;
+          }
+          current = *current->right;
+        }
+      }
     }
 
     bool contains(const T& value) {
