@@ -148,6 +148,10 @@ namespace dsun {
                 return *vec.get_mut(index).value();
             }
 
+            T operator*() const {
+                return vec.get(index).value();
+            }
+
             uint32_t get_index() const {
                 return index;
             }

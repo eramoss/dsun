@@ -142,6 +142,50 @@ namespace dsun {
       return false;
     }
 
+    class Iterator {
+      dsun::Vec<Node*> table;
+      std::size_t index;
+      Node* node;
+    public:
+      Iterator(dsun::Vec<Node*> table, std::size_t index, Node* node) : table(table), index(index), node(node) {}
+
+      std::pair<K, T> operator*() {
+        return { node->key, node->value };
+      }
+
+      Iterator& operator++() {
+        if (node->next != nullptr) {
+          node = node->next;
+          return *this;
+        }
+        while (index < table.capacity()) {
+          index++;
+          if (table.get(index).has_value()) {
+            node = table.get(index).value();
+            return *this;
+          }
+        }
+        node = nullptr;
+        return *this;
+      }
+
+      bool operator!=(const Iterator& other) {
+        return node != other.node;
+      }
+    };
+
+    Iterator begin() {
+      for (std::size_t i = 0; i < table.capacity(); i++) {
+        if (table.get(i).has_value()) {
+          return Iterator(table, i, table.get(i).value());
+        }
+      }
+      return Iterator(table, table.capacity(), nullptr);
+    }
+
+    Iterator end() {
+      return Iterator(table, table.capacity(), nullptr);
+    }
     class Entry {
       struct Occupied {
         K key;
