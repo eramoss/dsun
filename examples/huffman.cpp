@@ -97,7 +97,7 @@ int main(int argc, char const* argv[]) {
   dsun::LinkedList<huffman_node_t*> nodes = build_huffman_nodes(freq_table);
   huffman_node_t* root = build_huffMan_tree(nodes);
 
-  dsun::Vec<uint8_t>* bits = new dsun::Vec<uint8_t>();
+  dsun::Vec<uint8_t>* bits = new dsun::Vec<uint8_t>(freq_table.len());
   auto walk_table = dsun::HashMap<char, dsun::Vec<uint8_t>>();
   build_walk_table(root, bits, walk_table);
 

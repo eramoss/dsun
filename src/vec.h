@@ -27,6 +27,8 @@ namespace dsun {
             ptr = std::make_unique<T[]>(cap);
             std::copy(other.ptr.get(), other.ptr.get() + length, ptr.get());
         }
+        Vec(uint32_t cap);
+
         template<std::size_t N>
         static Vec<T> from_slice(const T(&arr)[N]) {
             auto vec = Vec<T>::with_capacity(N * 2);
@@ -181,6 +183,12 @@ namespace dsun {
 
     template <class T>
     Vec<T>::Vec() : length(0), cap(INITIAL_SIZE) {
+        static_assert(std::size_t{ sizeof(T) } > 0, "T must be complete type");
+        ptr = std::make_unique<T[]>(cap);
+    }
+
+    template <class T>
+    Vec<T>::Vec(uint32_t cap) : length(0), cap(cap) {
         static_assert(std::size_t{ sizeof(T) } > 0, "T must be complete type");
         ptr = std::make_unique<T[]>(cap);
     }
