@@ -62,18 +62,7 @@ void build_walk_table(huffman_node_t* root, dsun::Vec<uint8_t>* bits, dsun::Hash
   }
 }
 
-int main(int argc, char const* argv[]) {
-  std::string input = "aaaaabbbbbbbbbccccccccccccdddddddddddddeeeeeeeeeeeeeeeefffffffffffffffffffffffffffffffffffffffffffff";
-  freq_table_t freq_table = build_freq_table(input);
-
-
-  dsun::LinkedList<huffman_node_t*> nodes = build_huffman_nodes(freq_table);
-  std::cout << "[";
-  for (int i = 0; i < nodes.len(); i++) {
-    std::cout << "{" << nodes[i]->value.value << ", " << nodes[i]->value.frequency << "}";
-  }
-  std::cout << "]" << std::endl;
-
+void merge_two_by_two(dsun::LinkedList<huffman_node_t*>& nodes) {
   while (nodes.len() > 1) {
     auto first = nodes.pop_front().value();
     auto second = nodes.pop_front().value();
@@ -88,11 +77,32 @@ int main(int argc, char const* argv[]) {
       std::cout << "{" << nodes[i]->value.value << ", " << nodes[i]->value.frequency << "}";
     }
     std::cout << "]" << nodes.len() << std::endl;
-
   }
+}
+
+huffman_node_t* build_huffMan_tree(dsun::LinkedList<huffman_node_t*>& nodes) {
+  std::cout << "[";
+  for (int i = 0; i < nodes.len(); i++) {
+    std::cout << "{" << nodes[i]->value.value << ", " << nodes[i]->value.frequency << "}";
+  }
+  std::cout << "]" << nodes.len() << std::endl;
+  merge_two_by_two(nodes);
+  return nodes[0];
+}
+
+int main(int argc, char const* argv[]) {
+  std::string input = "aaaaabbbbbbbbbccccccccccccdddddddddddddeeeeeeeeeeeeeeeefffffffffffffffffffffffffffffffffffffffffffff";
+  freq_table_t freq_table = build_freq_table(input);
+
+  dsun::LinkedList<huffman_node_t*> nodes = build_huffman_nodes(freq_table);
+  huffman_node_t* root = build_huffMan_tree(nodes);
+
+  dsun::Vec<uint8_t>* bits = new dsun::Vec<uint8_t>();
+  auto walk_table = dsun::HashMap<char, dsun::Vec<uint8_t>>();
+  build_walk_table(root, bits, walk_table);
 
   std::cout << "\n\nHuffman tree:" << std::endl;
-  huffman_tree_t::pre_order_traversal(nodes[nodes.len() - 1], [](huffman_value_t value) {
+  huffman_tree_t::pre_order_traversal(root, [](huffman_value_t value) {
     if (value.value == '\0') {
       std::cout << "Internal Node: " << value.frequency << std::endl;
     }
@@ -101,10 +111,8 @@ int main(int argc, char const* argv[]) {
     }
     });
 
+
   std::cout << "\n\nWalk Table:" << std::endl;
-  dsun::Vec<uint8_t>* bits = new dsun::Vec<uint8_t>();
-  auto walk_table = dsun::HashMap<char, dsun::Vec<uint8_t>>();
-  build_walk_table(nodes[0], bits, walk_table);
   for (auto entry : walk_table) {
     std::cout << entry.first << ": ";
     for (size_t i = 0; i < entry.second.len(); i++) {
