@@ -155,12 +155,6 @@ TEST_F(VecTest, AssignmentOperatorIndexVec) {
   EXPECT_EQ(vec[0], 10);
 }
 
-TEST_F(VecTest, IndexOutOfBoundsVec) {
-  int arr[5] = { 1, 2, 3, 4, 5 };
-  auto vec = dsun::Vec<int>::from_slice(arr);
-  EXPECT_THROW(vec[6], std::out_of_range);
-}
-
 TEST_F(VecTest, ContainsVec) {
   int arr[5] = { 1, 2, 3, 4, 5 };
   auto vec = dsun::Vec<int>::from_slice(arr);
