@@ -108,9 +108,9 @@ TEST_F(HashmapTest, EntryAndModifyTest) {
   auto entry = hash_map.entry(1).and_modify([](std::string& value) {
     value = "OneOne";
     }).or_insert("two");
-    auto entry2 = hash_map.entry(2).and_modify([](std::string& value) {
-      value = "OneOne";
-      }).or_insert("two");
-      EXPECT_EQ(entry2, "two");
-      EXPECT_EQ(entry, "OneOne");
+  auto entry2 = hash_map.entry(2).and_modify([](std::string& value) {
+    value = "OneOne";
+    }).or_insert("two");
+  EXPECT_EQ(entry2, "two");
+  EXPECT_EQ(entry, "OneOne");
 }

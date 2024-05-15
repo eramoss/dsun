@@ -164,7 +164,7 @@ namespace dsun {
 
       T or_insert(T value) {
         if (std::holds_alternative<Occupied>(entry)) {
-          return std::get<Occupied>(entry).value;
+          return std::get<Occupied>(entry).base->get(std::get<Occupied>(entry).key).value();
         }
         Vacant vacant = std::get<Vacant>(entry);
         vacant.base->insert(vacant.key, value);
