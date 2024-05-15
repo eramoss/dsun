@@ -189,56 +189,63 @@ namespace dsun {
 
     class Iterator {
     private:
-      Node* current;
-      dsun::Vec<Node*> table;
-      std::size_t index;
-
+      HashMap<K, T>& map;
+      uint32_t index;
+      Node* node;
     public:
-      Iterator(Node* current, dsun::Vec<Node*> table, std::size_t index) : current(current), table(table), index(index) {}
+      Iterator(HashMap<K, T>& map, uint32_t index, Node* node) : map(map), index(index), node(node) {}
+
+      bool operator==(const Iterator& other) const {
+        return index == other.index;
+      }
+
+      bool operator!=(const Iterator& other) const {
+        return index != other.index;
+      }
 
       Iterator& operator++() {
-        if (current->next != nullptr) {
-          current = current->next;
+        if (node->next != nullptr) {
+          node = node->next;
+          return *this;
         }
-        else {
-          ++index;
-          while (index < table.capacity() && table[index] == nullptr) {
-            ++index;
-          }
-          if (index < table.capacity()) {
-            current = table[index];
-          }
-          else {
-            current = nullptr;
-          }
+        index++;
+        while (index < map.table.capacity() && map.table.get(index).has_value() == false) {
+          index++;
+        }
+        if (index < map.table.capacity()) {
+          node = map.table.get(index).value();
         }
         return *this;
       }
 
-      Node& operator*() const {
-        return *current;
+      std::pair<K, T> get() const {
+        return { node->key, node->value };
+      }
+      std::pair<K, T>& get_mut() {
+        return { node->key, node->value };
+      }
+      std::pair<K, T> operator*() const {
+        return get();
       }
 
-      bool operator!=(const Iterator& other) const {
-        return current != other.current;
+      uint32_t get_index() const {
+        return index;
       }
     };
 
-    Iterator begin()const {
-      std::size_t index = 0;
-      while (index < table.capacity() && table[index] == nullptr) {
-        ++index;
+    Iterator begin() {
+      uint32_t index = 0;
+      while (index < table.capacity() && table.get(index).has_value() == false) {
+        index++;
       }
       if (index < table.capacity()) {
-        return Iterator(table[index], table, index);
+        return Iterator(*this, index, table.get(index).value());
       }
-      else {
-        return end();
-      }
+      return Iterator(*this, index, nullptr);
     }
 
-    Iterator end() const {
-      return Iterator(nullptr, table, table.len());
+    Iterator end() {
+      return Iterator(*this, table.capacity(), nullptr);
     }
   };
 }
