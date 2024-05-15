@@ -74,6 +74,9 @@ namespace dsun {
             length++;
         }
 
+        void clear() {
+            length = 0;
+        }
         /*
           Getters
         */
@@ -149,9 +152,6 @@ namespace dsun {
             }
             T& get_mut() {
                 return *vec.get_mut(index).value();
-            }
-            T operator*() const {
-                return get();
             }
 
             uint32_t get_index() const {

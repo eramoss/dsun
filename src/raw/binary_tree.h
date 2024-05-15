@@ -7,8 +7,8 @@ namespace dsun {
     template <class T>
     struct node_t {
       T value;
-      std::unique_ptr<node_t> left;
-      std::unique_ptr<node_t> right;
+      node_t* left;
+      node_t* right;
       node_t(T value) : value(value) {}
       node_t() {}
     };
@@ -16,15 +16,24 @@ namespace dsun {
     template <class T>
     class BinaryTree {
     public:
-      static std::unique_ptr<node_t<T>> merge(std::unique_ptr<node_t<T>> left, std::unique_ptr<node_t<T>> right, std::unique_ptr<node_t<T>> root);
-      static std::unique_ptr<node_t<T>> link_node_left(std::unique_ptr<node_t<T>> root, std::unique_ptr<node_t<T>> left);
-      static std::unique_ptr<node_t<T>> link_node_right(std::unique_ptr<node_t<T>> root, std::unique_ptr<node_t<T>> right);
-      static std::unique_ptr<node_t<T>> unlink_node_left(std::unique_ptr<node_t<T>> root);
-      static std::unique_ptr<node_t<T>> unlink_node_right(std::unique_ptr<node_t<T>> root);
+      static node_t<T>* merge(node_t<T>* left, node_t<T>* right, node_t<T>* root);
+      static node_t<T>* link_node_left(node_t<T>* root, node_t<T>* left);
+      static node_t<T>* link_node_right(node_t<T>* root, node_t<T>* right);
+      static node_t<T>* unlink_node_left(node_t<T>* root);
+      static node_t<T>* unlink_node_right(node_t<T>* root);
+      template <class F>
+      static void pre_order_traversal(node_t<T>*& root, F f) {
+        if (!root) {
+          return;
+        }
+        f(root->value);
+        pre_order_traversal(root->left, f);
+        pre_order_traversal(root->right, f);
+      }
     };
 
     template <class T>
-    std::unique_ptr<node_t<T>> BinaryTree<T>::merge(std::unique_ptr<node_t<T>> left, std::unique_ptr<node_t<T>> right, std::unique_ptr<node_t<T>> root) {
+    node_t<T>* BinaryTree<T>::merge(node_t<T>* left, node_t<T>* right, node_t<T>* root) {
       if (!left) {
         return right;
       }
@@ -32,45 +41,45 @@ namespace dsun {
         return left;
       }
       if (!root) {
-        root = std::make_unique<node_t<T>>();
+        root = new node_t<T>();
       }
-      root->left = std::move(left);
-      root->right = std::move(right);
+      root->left = left;
+      root->right = right;
       return root;
     }
 
     template <class T>
-    std::unique_ptr<node_t<T>> BinaryTree<T>::link_node_left(std::unique_ptr<node_t<T>> root, std::unique_ptr<node_t<T>> left) {
+    node_t<T>* BinaryTree<T>::link_node_left(node_t<T>* root, node_t<T>* left) {
       if (!root) {
         return left;
       }
-      root->left = std::move(left);
+      root->left = left;
       return root;
     }
 
     template <class T>
-    std::unique_ptr<node_t<T>> BinaryTree<T>::link_node_right(std::unique_ptr<node_t<T>> root, std::unique_ptr<node_t<T>> right) {
+    node_t<T>* BinaryTree<T>::link_node_right(node_t<T>* root, node_t<T>* right) {
       if (!root) {
         return right;
       }
-      root->right = std::move(right);
+      root->right = right;
       return root;
     }
 
     template <class T>
-    std::unique_ptr<node_t<T>> BinaryTree<T>::unlink_node_left(std::unique_ptr<node_t<T>> root) {
+    node_t<T>* BinaryTree<T>::unlink_node_left(node_t<T>* root) {
       if (!root) {
         return nullptr;
       }
-      return std::move(root->left);
+      return root->left;
     }
 
     template <class T>
-    std::unique_ptr<node_t<T>> BinaryTree<T>::unlink_node_right(std::unique_ptr<node_t<T>> root) {
+    node_t<T>* BinaryTree<T>::unlink_node_right(node_t<T>* root) {
       if (!root) {
         return nullptr;
       }
-      return std::move(root->right);
+      return root->right;
     }
   }
 }

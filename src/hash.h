@@ -51,7 +51,7 @@ namespace dsun {
       Node(K key, T value, Node* next) : key(key), value(value), next(next) {}
     };
     dsun::Vec<Node*> table;
-
+    size_t len_ = 0;
     std::size_t hash(const K& key) const {
       return Hash<K>{}(key) % table.capacity();
     }
@@ -64,6 +64,7 @@ namespace dsun {
       if (table.get(index).has_value() == false) {
         table.as_slice()[index] = new_node;
         table.set_len(table.len() + 1);
+        len_++;
         return;
       }
       Node* node = table.get(index).value();
@@ -84,6 +85,7 @@ namespace dsun {
         table.set_len(table.len() - 1);
         T value = node->value;
         delete node;
+        len_--;
         return value;
       }
       while (node->next != nullptr) {
@@ -92,6 +94,7 @@ namespace dsun {
           node->next = next->next;
           T value = next->value;
           delete next;
+          len_--;
           return value;
         }
         node = node->next;
@@ -142,6 +145,14 @@ namespace dsun {
         node = node->next;
       }
       return false;
+    }
+
+    [[nodiscard]] size_t len() const {
+      return len_;
+    }
+
+    [[nodiscard]] size_t capacity() const {
+      return table.capacity();
     }
 
     class Entry {
