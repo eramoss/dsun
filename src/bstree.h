@@ -10,15 +10,6 @@ namespace dsun {
   template <typename T>
   concept Comparable = requires(const T a, const T b) {
     {
-      a < b
-    } -> std::convertible_to<bool>;
-    {
-      a > b
-    } -> std::convertible_to<bool>;
-    {
-      a == b
-    } -> std::convertible_to<bool>;
-    {
       a <=> b
     } -> std::convertible_to<std::partial_ordering>;
 
@@ -121,6 +112,28 @@ namespace dsun {
       std::optional<T> result = node->value()->value;
       *node = std::nullopt;
       return result;
+    }
+
+    void remove(const T& value) {
+      traverse_find(&root, value, [&](node_ptr_opt* current) {
+        if (!current->has_value()) {
+          return;
+        }
+        if (!current->value()->left.has_value() && !current->value()->right.has_value()) {
+          *current = std::nullopt;
+        }
+        else if (!current->value()->left.has_value()) {
+          *current = current->value()->right;
+        }
+        else if (!current->value()->right.has_value()) {
+          *current = current->value()->left;
+        }
+        else {
+          auto node = traverse_extreme(true, &current->value()->right);
+          current->value()->value = node->value()->value;
+          *node = node->value()->right;
+        }
+        });
     }
     /*Helpers*/
     bool is_empty() const {
