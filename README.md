@@ -24,6 +24,12 @@ and then:
   cmake --build . --config Debug
 ```
 
+### Manual
+You can also build your projects manually passing include path:
+```sh
+  clang++ ./examples/huffman.cpp -I/path/to/dsun/ -I/path/to/standard/includes -std=c++20
+```
+
 ## test
 
 require `CTest`
@@ -42,3 +48,5 @@ to build and test just run:
   python3 scripts/build.py
   python3 scripts/test.py
 ```
+
+
