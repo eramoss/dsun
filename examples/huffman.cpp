@@ -1,5 +1,4 @@
-#include "dsun.h"
-#include "memory"
+#include "../src/dsun.h"
 struct huffman_value_t {
   char value;
   int frequency;

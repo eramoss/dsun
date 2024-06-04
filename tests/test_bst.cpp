@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "dsun.h"
+#include "../src/bstree.h"
 
 using namespace dsun;
 TEST(BSTreeTest, InsertAndContains) {

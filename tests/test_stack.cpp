@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "dsun.h"
+#include "../src/stack.h"
 
 TEST(Stack, Push) {
   dsun::Stack<int> stack;

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "dsun.h"
+#include "../src/hash.h"
 #include <string>
 
 

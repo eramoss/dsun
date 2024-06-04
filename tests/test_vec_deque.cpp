@@ -70,8 +70,6 @@ TEST(VecDequeTest, PushFrontInFullCap) {
   deque.push_front(4);
   EXPECT_EQ(deque.pop_front(), 4);
 }
-#include "gtest/gtest.h"
-#include "vec_deque.h"
 
 TEST(VecDequeTest, MakeContiguousEmpty) {
   VecDeque<int> deque;

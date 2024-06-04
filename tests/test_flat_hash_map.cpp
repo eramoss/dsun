@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #define private public
-#include "swiss_table.h"
+#include "../src/swiss_table.h"
 using namespace SwissTables;
 
 

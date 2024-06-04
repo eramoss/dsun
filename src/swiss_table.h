@@ -2,6 +2,7 @@
 #define DSUN_SWISSTABLE_H
 
 #include <concepts>
+#include <cstdint>
 #include <functional>
 #include <iostream>
 #include <optional>

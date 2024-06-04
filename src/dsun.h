@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "vec_deque.h"
 #include "bstree.h"
+#include "avltree.h"
 #include "raw/binary_tree.h"
 
 #endif // DSUN_H
