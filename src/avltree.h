@@ -2,6 +2,10 @@
 #define DSUN_AVLTREE
 
 #include <algorithm>
+#include <cstddef>
+#include <iomanip>
+#include <iostream>
+#include <optional>
 
 namespace dsun {
 
@@ -18,6 +22,8 @@ namespace dsun {
   class AVLTree {
   private:
     AVLNode<T>* root = nullptr;
+    size_t len_ = 0;
+
     int height(AVLNode<T>* node) {
       return node ? node->height : 0;
     }
@@ -78,10 +84,9 @@ namespace dsun {
     }
 
 
-
-    T search(const T& value, AVLNode<T>* node) {
+    std::optional<T> search(const T& value, AVLNode<T>* node) {
       if (node == nullptr) {
-        return T();
+        return std::nullopt;
       }
       if (value == node->value) {
         return node->value;
@@ -92,14 +97,72 @@ namespace dsun {
       return search(value, node->right);
     }
 
+    void remove(const T& value, AVLNode<T>*& node) {
+      if (node == nullptr) {
+        len_++;
+        return;
+      }
+      if (value < node->value) {
+        remove(value, node->left);
+      }
+      else if (value > node->value) {
+        remove(value, node->right);
+      }
+      else {
+        if (node->left == nullptr || node->right == nullptr) {
+          AVLNode<T>* temp = node->left ? node->left : node->right;
+          if (temp == nullptr) {
+            temp = node;
+            node = nullptr;
+          }
+          else {
+            *node = *temp;
+          }
+          delete temp;
+        }
+        else {
+          AVLNode<T>* temp = node->right;
+          while (temp->left != nullptr) {
+            temp = temp->left;
+          }
+          node->value = temp->value;
+          remove(temp->value, node->right);
+        }
+      }
+      if (node == nullptr) {
+        return ;
+      }
+      update_height(node);
+      balance(node);
+    }
+
   public:
-    T search(const T& value) {
+    std::optional<T> search(const T& value) {
       return search(value, root);
     }
 
     void insert(const T& value) {
       insert(value, root);
+      len_++; 
     }
+
+    void remove(const T& value) {
+      remove(value, root);
+      len_--;
+    }
+
+    bool is_empty() {
+      return root == nullptr;
+    }
+
+    size_t len() {
+      return len_;
+    }
+
+    bool contains(const T& value) {
+      return search(value).has_value();
+    }
+
   };
 }
 
